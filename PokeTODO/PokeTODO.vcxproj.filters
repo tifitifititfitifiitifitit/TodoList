@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일\interfaces">
+      <UniqueIdentifier>{d7f58d9b-920d-425d-9940-12cd1e69cdf4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\models">
+      <UniqueIdentifier>{c46e89a5-e972-4a17-835a-e3a072609f2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\services">
+      <UniqueIdentifier>{a11bd474-c667-4abf-827c-47711c121e64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\utils">
+      <UniqueIdentifier>{3e7f6f76-6695-4f7b-a314-c55454199b1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\interfaces">
+      <UniqueIdentifier>{5d98a445-50c0-4433-8224-ac5fdd5d461d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\models">
+      <UniqueIdentifier>{8d38e90d-4a4f-4142-988e-0c42d9baa8dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\services">
+      <UniqueIdentifier>{d78e0c28-e5ea-4906-9c1a-374de66086a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\utils">
+      <UniqueIdentifier>{c52fdd62-584f-4895-a6d2-4a5cf8624a36}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\interfaces\INotificationService.h">
+      <Filter>헤더 파일\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="include\interfaces\IStatisticsService.h">
+      <Filter>헤더 파일\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="include\models\Plan.h">
+      <Filter>헤더 파일\models</Filter>
+    </ClInclude>
+    <ClInclude Include="include\models\Tamagotchi.h">
+      <Filter>헤더 파일\models</Filter>
+    </ClInclude>
+    <ClInclude Include="include\models\TamagotchiState.h">
+      <Filter>헤더 파일\models</Filter>
+    </ClInclude>
+    <ClInclude Include="include\models\Task.h">
+      <Filter>헤더 파일\models</Filter>
+    </ClInclude>
+    <ClInclude Include="include\models\TaskCreateRequest.h">
+      <Filter>헤더 파일\models</Filter>
+    </ClInclude>
+    <ClInclude Include="include\models\TaskUpdateRequest.h">
+      <Filter>헤더 파일\models</Filter>
+    </ClInclude>
+    <ClInclude Include="include\models\User.h">
+      <Filter>헤더 파일\models</Filter>
+    </ClInclude>
+    <ClInclude Include="include\services\UserPlanService.h">
+      <Filter>헤더 파일\services</Filter>
+    </ClInclude>
+    <ClInclude Include="include\services\UserPointService.h">
+      <Filter>헤더 파일\services</Filter>
+    </ClInclude>
+    <ClInclude Include="include\services\UserTamagotchiService.h">
+      <Filter>헤더 파일\services</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
