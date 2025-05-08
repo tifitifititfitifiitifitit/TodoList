@@ -80,5 +80,11 @@
     <ClCompile Include="src\models\User.cpp">
       <Filter>소스 파일\models</Filter>
     </ClCompile>
+    <ClCompile Include="src\models\Plan.cpp">
+      <Filter>소스 파일\models</Filter>
+    </ClCompile>
+    <ClCompile Include="src\services\UserPlanService.cpp">
+      <Filter>소스 파일\services</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

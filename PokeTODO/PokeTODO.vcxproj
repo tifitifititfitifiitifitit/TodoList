@@ -33,7 +33,9 @@
     <ClInclude Include="src\services\UserTamagotchiService.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\models\Plan.cpp" />
     <ClCompile Include="src\models\User.cpp" />
+    <ClCompile Include="src\services\UserPlanService.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
