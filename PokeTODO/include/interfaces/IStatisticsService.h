@@ -10,3 +10,5 @@ public:
     virtual std::string generateReport(const User& user) = 0;
     virtual bool checkLowPerformance(const std::map<std::string, double>& stats) = 0;
 }; 
+
+//오우오우오우
