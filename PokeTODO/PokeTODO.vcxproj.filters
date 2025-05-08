@@ -39,41 +39,46 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\interfaces\INotificationService.h">
+    <ClInclude Include="src\interfaces\INotificationService.h">
       <Filter>헤더 파일\interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="include\interfaces\IStatisticsService.h">
+    <ClInclude Include="src\interfaces\IStatisticsService.h">
       <Filter>헤더 파일\interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="include\models\Plan.h">
+    <ClInclude Include="src\models\Plan.h">
       <Filter>헤더 파일\models</Filter>
     </ClInclude>
-    <ClInclude Include="include\models\Tamagotchi.h">
+    <ClInclude Include="src\models\Tamagotchi.h">
       <Filter>헤더 파일\models</Filter>
     </ClInclude>
-    <ClInclude Include="include\models\TamagotchiState.h">
+    <ClInclude Include="src\models\TamagotchiState.h">
       <Filter>헤더 파일\models</Filter>
     </ClInclude>
-    <ClInclude Include="include\models\Task.h">
+    <ClInclude Include="src\models\Task.h">
       <Filter>헤더 파일\models</Filter>
     </ClInclude>
-    <ClInclude Include="include\models\TaskCreateRequest.h">
+    <ClInclude Include="src\models\TaskCreateRequest.h">
       <Filter>헤더 파일\models</Filter>
     </ClInclude>
-    <ClInclude Include="include\models\TaskUpdateRequest.h">
+    <ClInclude Include="src\models\TaskUpdateRequest.h">
       <Filter>헤더 파일\models</Filter>
     </ClInclude>
-    <ClInclude Include="include\models\User.h">
+    <ClInclude Include="src\models\User.h">
       <Filter>헤더 파일\models</Filter>
     </ClInclude>
-    <ClInclude Include="include\services\UserPlanService.h">
+    <ClInclude Include="src\services\UserPlanService.h">
       <Filter>헤더 파일\services</Filter>
     </ClInclude>
-    <ClInclude Include="include\services\UserPointService.h">
+    <ClInclude Include="src\services\UserPointService.h">
       <Filter>헤더 파일\services</Filter>
     </ClInclude>
-    <ClInclude Include="include\services\UserTamagotchiService.h">
+    <ClInclude Include="src\services\UserTamagotchiService.h">
       <Filter>헤더 파일\services</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\models\User.cpp">
+      <Filter>소스 파일\models</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

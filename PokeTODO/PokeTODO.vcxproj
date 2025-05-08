@@ -19,18 +19,21 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\interfaces\INotificationService.h" />
-    <ClInclude Include="include\interfaces\IStatisticsService.h" />
-    <ClInclude Include="include\models\Plan.h" />
-    <ClInclude Include="include\models\Tamagotchi.h" />
-    <ClInclude Include="include\models\TamagotchiState.h" />
-    <ClInclude Include="include\models\Task.h" />
-    <ClInclude Include="include\models\TaskCreateRequest.h" />
-    <ClInclude Include="include\models\TaskUpdateRequest.h" />
-    <ClInclude Include="include\models\User.h" />
-    <ClInclude Include="include\services\UserPlanService.h" />
-    <ClInclude Include="include\services\UserPointService.h" />
-    <ClInclude Include="include\services\UserTamagotchiService.h" />
+    <ClInclude Include="src\interfaces\INotificationService.h" />
+    <ClInclude Include="src\interfaces\IStatisticsService.h" />
+    <ClInclude Include="src\models\Plan.h" />
+    <ClInclude Include="src\models\Tamagotchi.h" />
+    <ClInclude Include="src\models\TamagotchiState.h" />
+    <ClInclude Include="src\models\Task.h" />
+    <ClInclude Include="src\models\TaskCreateRequest.h" />
+    <ClInclude Include="src\models\TaskUpdateRequest.h" />
+    <ClInclude Include="src\models\User.h" />
+    <ClInclude Include="src\services\UserPlanService.h" />
+    <ClInclude Include="src\services\UserPointService.h" />
+    <ClInclude Include="src\services\UserTamagotchiService.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\models\User.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
