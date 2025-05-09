@@ -1,3 +1,4 @@
+/*
 #pragma once
 #include "../models/Tamagotchi.h"
 
@@ -18,3 +19,4 @@ public:
     // Getters
     Tamagotchi* getTamagotchi() const;
 }; 
+*/ 

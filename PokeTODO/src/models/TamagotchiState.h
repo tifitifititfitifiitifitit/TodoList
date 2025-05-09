@@ -1,3 +1,4 @@
+/*
 #pragma once
 
 #include <string>
@@ -134,3 +135,4 @@ public:
 };
 
 } // namespace Tamagotchi 
+*/ 

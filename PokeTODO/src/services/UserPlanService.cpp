@@ -1,108 +1,73 @@
+#include "../services/UserPlanService.h" // UserPlanService.h를 가장 먼저 인클루드 (또는 관련된 모델 헤더들 이후)
 #include "../models/Plan.h"
 #include "../models/Task.h"
 #include "../models/TaskCreateRequest.h"
-#include "../services/UserPlanService.h"
+#include <iostream> // For std::cerr, std::endl
+#include <string>   // For std::to_string
+#include <vector>   // Included by Plan.h etc., but good practice to be explicit if used directly
+#include <map>      // For std::map
 
-// UserPlanService.h
+// Static counters for ID generation
+static int planIdCounter = 0;
+static int taskIdCounter = 0;
 
-#ifndef USERPLANSERVICE_H
-#define USERPLANSERVICE_H
-
-class UserPlan {
-public:
-    UserPlan();
-    // 생성자
-    UserPlan(int id, const std::string& name, const std::string& date);
-
-    // 계획에 Task 추가
-    void addTask(const Task& task);
-
-    // Task 완료 처리
-    bool completeTask(int taskId);
-
-    // getter
-    int getId() const;
-    std::string getName() const;
-    std::string getDate() const;
-
-    // 계획 내의 모든 Task 조회
-    std::vector<Task> getTasks() const;
-
-private:
-    int planId;  // 계획 ID
-    std::string planName;  // 계획 이름
-    std::string planDate;  // 계획 날짜
-    std::vector<Task> tasks;  // 계획에 포함된 Task들
-};
-
-class UserPlanService {
-public:
-    UserPlanService();  // 생성자
-    ~UserPlanService(); // 소멸자
-
-    // 계획 생성
-    bool createPlan(const UserPlan& plan);
-
-    // 계획 조회
-    UserPlan getPlan(int planId) const;
-
-    // 계획에 Task 추가
-    bool addTaskToPlan(int planId, const Task& task);
-
-    // Task 완료 처리
-    bool completeTask(int planId, int taskId);
-
-private:
-    std::vector<UserPlan> plans;  // 계획들을 저장할 벡터
-    int planCounter;  // 계획 ID를 관리하기 위한 카운터
-};
-
-#endif // USERPLANSERVICE_H
-// UserPlanService.cpp
-
-#include "UserPlanService.h"
-
-// 생성자
-UserPlanService::UserPlanService() : planCounter(0) {}
-
-// 소멸자
-UserPlanService::~UserPlanService() {}
-
-// 계획 생성
-bool UserPlanService::createPlan(const UserPlan& plan) {
-    plans.push_back(plan);
-    planCounter++; // 계획 ID 증가
-    return true; // 계획 생성 성공
+UserPlanService::UserPlanService() {
+    // Constructor logic (if needed)
 }
 
-// 계획 조회
-UserPlan UserPlanService::getPlan(int planId) const {
-    for (const auto& plan : plans) {
-        if (plan.getId() == planId) {
-            return plan; // 계획 ID에 해당하는 계획 반환
-        }
-    }
-    // 계획이 없으면 예외 처리 (빈 계획 객체 반환)
-    return UserPlan();
+// UserPlanService::~UserPlanService() {} // Uncomment or remove if destructor is not declared in header
+
+Plan UserPlanService::createPlan(const std::time_t& date, const std::string& title) {
+    std::string newPlanId = "plan-" + std::to_string(++planIdCounter);
+    Plan newPlan(newPlanId, date, title);
+    this->plans[date].push_back(newPlan); // Add to the list of Plans for that date
+    return newPlan;
 }
 
-// 계획에 Task 추가
-bool UserPlanService::addTaskToPlan(int planId, const Task& task) {
-    for (auto& plan : plans) {
-        if (plan.getId() == planId) {
-            plan.addTask(task); // 계획에 Task 추가
-            return true;
+Plan* UserPlanService::getPlan(const std::string& planIdToFind) {
+    for (auto& mapEntry : this->plans) { // 올바른 map 순회 방식
+        std::vector<Plan>& planList = mapEntry.second;
+        for (auto& plan : planList) {
+            if (plan.getPlanId() == planIdToFind) {
+                return &plan;
+            }
         }
     }
-    return false; // 계획을 찾을 수 없으면 실패
+    return nullptr;
 }
 
-// Task 완료 처리
-bool UserPlanService::completeTask(int planId, int taskId) {
-    for (auto& plan : plans) {
-        if (plan.getId() == planId) {
-            return plan.completeTask(taskId); // 계획 내에서 Task 완료 처리
+Task UserPlanService::addTaskToPlan(const std::string& planId, const TaskCreateRequest& request) {
+    Plan* plan = getPlan(planId); // getPlan(const std::string&) 호출
+    if (plan) {
+        std::string newTaskId = planId + "-task-" + std::to_string(++taskIdCounter);
+        Task newTask(newTaskId, request);
+        plan->addTask(newTask);
+        return newTask;
+    } else {
+        // Plan not found - exception handling or returning an empty/error Task needed
+        // For now, simply return a default-constructed Task (to clearly indicate an error)
+        // Consider throwing std::runtime_error in a real application
+        std::cerr << "Error: Plan with ID " << planId << " not found. Cannot add task." << std::endl;
+        // Since Task requires TaskCreateRequest, create an empty request for the error task.
+        TaskCreateRequest emptyRequest("ERROR", "Plan not found", Priority::LOW, time(0), {});
+        return Task("error-task", emptyRequest); 
+    }
+}
+
+void UserPlanService::completeTask(const std::string& taskIdToComplete) {
+    for (auto& mapEntry : this->plans) { // 올바른 map 순회 방식
+        std::vector<Plan>& planList = mapEntry.second;
+        for (auto& plan : planList) {
+            Task* task = plan.getTask(taskIdToComplete);
+            if (task) {
+                task->markComplete();
+                return; // Task found and completed, exit function
+            }
         }
     }
-    return false; // 계획을 찾을 수 없으면 실패
+    std::cerr << "Error: Task with ID " << taskIdToComplete << " not found in any plan." << std::endl;
+}
+
+const std::map<std::time_t, std::vector<Plan>>& UserPlanService::getPlans() const {
+    return this->plans;
 }

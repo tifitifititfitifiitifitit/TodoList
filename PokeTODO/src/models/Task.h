@@ -2,11 +2,15 @@
 #include <string>
 #include <vector>
 #include <ctime>
-#include "TaskCreateRequest.h"
-#include "TaskUpdateRequest.h"
 
+// Enum 정의를 클래스 선언 위로 이동
 enum class Priority { LOW, MEDIUM, HIGH };
 enum class TaskStatus { PENDING, IN_PROGRESS, COMPLETED };
+
+// TaskCreateRequest 와 TaskUpdateRequest 에 대한 전방 선언을 추가하여
+// Task 클래스 선언 시 해당 타입들을 알 수 있도록 합니다.
+class TaskCreateRequest;
+class TaskUpdateRequest;
 
 class Task {
 private:
@@ -19,6 +23,10 @@ private:
     std::vector<std::string> tags;
 
 public:
+    // 생성자의 매개변수 타입이 완전한 정의를 요구하므로, 
+    // 생성자 선언은 TaskCreateRequest/TaskUpdateRequest 정의 이후로 옮기거나
+    // .cpp 파일에만 정의를 남기는 것이 좋습니다.
+    // 여기서는 헤더에 선언을 유지하되, TaskCreateRequest.h 등이 먼저 include 되도록 합니다.
     Task(const std::string& id, const TaskCreateRequest& request);
 
     // Status management

@@ -86,5 +86,20 @@
     <ClCompile Include="src\services\UserPlanService.cpp">
       <Filter>소스 파일\services</Filter>
     </ClCompile>
+    <ClCompile Include="src\models\Task.cpp">
+      <Filter>소스 파일\models</Filter>
+    </ClCompile>
+    <ClCompile Include="src\models\TaskCreateRequest.cpp">
+      <Filter>소스 파일\models</Filter>
+    </ClCompile>
+    <ClCompile Include="src\models\TaskUpdateRequest.cpp">
+      <Filter>소스 파일\models</Filter>
+    </ClCompile>
+    <ClCompile Include="src\services\UserPointService.cpp">
+      <Filter>소스 파일\services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>소스 파일\utils</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

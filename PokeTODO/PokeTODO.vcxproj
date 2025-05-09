@@ -33,9 +33,14 @@
     <ClInclude Include="src\services\UserTamagotchiService.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\models\Plan.cpp" />
+    <ClCompile Include="src\models\Task.cpp" />
+    <ClCompile Include="src\models\TaskCreateRequest.cpp" />
+    <ClCompile Include="src\models\TaskUpdateRequest.cpp" />
     <ClCompile Include="src\models\User.cpp" />
     <ClCompile Include="src\services\UserPlanService.cpp" />
+    <ClCompile Include="src\services\UserPointService.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

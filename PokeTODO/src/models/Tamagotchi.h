@@ -1,3 +1,4 @@
+/*
 #pragma once
 #include <string>
 #include "TamagotchiState.h"
@@ -40,3 +41,4 @@ public:
     void setHappiness(int value);
     void setHunger(int value);
 }; 
+*/ 
