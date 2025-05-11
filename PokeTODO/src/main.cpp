@@ -100,5 +100,52 @@ int main() {
         }
     }
 
+    std::string input;
+    system("cls");
+    while (1) {
+        std::getline(std::cin, input);
+        
+        if (input == "help") {
+            std::cout << "  new plan\tcreate new plan" << std::endl;
+            std::cout << "  plan list\tshow all plans" << std::endl;
+            std::cout << "  add task\tadd task to plan" << std::endl;
+            std::cout << "  task list\tshow all task" << std::endl << std::endl;
+
+        }
+        else if (input == "new plan") {
+            std::string title;
+            std::cout << "plz input title: ";
+            std::cin >> title;
+            planService.createPlan(currentTime, title);
+            std::cout << "Plan created! (plan name : " << title << ")\n\n";
+            std::cin.ignore();
+        }
+        else if (input == "task list") {
+            // Print all Tasks in the Plan
+            Plan* retrievedPlan = planService.getPlan(myPlan.getPlanId());
+            if (retrievedPlan) {
+                std::cout << "Current tasks in '" << retrievedPlan->getTitle() << "':" << std::endl;
+                for (const auto& task : retrievedPlan->getTasks()) {
+                    std::cout << "  - " << task.getTaskId() << ": " << task.getTitle()
+                        << " (Priority: " << priorityToString(task.getPriority())
+                        << ", Status: " << statusToString(task.getStatus()) << ")" << std::endl;
+                }
+                std::cout << std::endl;
+            }
+        }
+        else if (input == "complete task") {
+            std::string taskID;
+            std::cout << "plz input taskID: ";
+            std::cin >> taskID;
+
+            Task* retrievedTask = myPlan.getTask(task1.getTaskId());
+            std::cout << "Completing Task '" << retrievedTask->getTaskId() << "'..." << std::endl << std::endl;
+            //planService.completeTask(task1.getTaskId());
+        }
+        else if (input == "break") break;
+        else {
+            std::cout << "error\n\n";
+        }
+    }
     return 0;
 } 
