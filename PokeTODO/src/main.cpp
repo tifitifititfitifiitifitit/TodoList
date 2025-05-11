@@ -26,6 +26,7 @@ std::string priorityToString(Priority priority) {
 }
 
 int main() {
+
     // Create UserPlanService instance
     UserPlanService planService;
 
@@ -106,13 +107,15 @@ int main() {
         std::getline(std::cin, input);
         
         if (input == "help") {
-            std::cout << "  new plan\tcreate new plan" << std::endl;
+            std::cout << "  new plan\t";
+            std::cout << "라라라라" << std::endl;
             std::cout << "  plan list\tshow all plans" << std::endl;
             std::cout << "  add task\tadd task to plan" << std::endl;
-            std::cout << "  task list\tshow all task" << std::endl << std::endl;
-
+            std::cout << "  task list\tshow task list" << std::endl;
+            std::cout << "  complete task\tcomplete the task" << std::endl;
+            std::cout << std::endl;
         }
-        else if (input == "new plan") {
+        else if (input == "new plan") { //완성
             std::string title;
             std::cout << "plz input title: ";
             std::cin >> title;
@@ -120,7 +123,18 @@ int main() {
             std::cout << "Plan created! (plan name : " << title << ")\n\n";
             std::cin.ignore();
         }
-        else if (input == "task list") {
+        else if (input == "plan list") { //완성
+            const auto& plans = planService.getPlans();
+            for (const auto& pair : plans) {
+                const std::vector<Plan>& planlist = pair.second;
+                for (const auto& plan : planlist) {
+                    std::cout << "  Plan ID: " << plan.getPlanId()
+                        << ", Title: " << plan.getTitle() << std::endl;
+                }
+                std::cout << std::endl;
+            }
+        }
+        else if (input == "task list") { //미완
             // Print all Tasks in the Plan
             Plan* retrievedPlan = planService.getPlan(myPlan.getPlanId());
             if (retrievedPlan) {
@@ -133,14 +147,17 @@ int main() {
                 std::cout << std::endl;
             }
         }
-        else if (input == "complete task") {
+        else if (input == "complete task") { //오류
             std::string taskID;
             std::cout << "plz input taskID: ";
             std::cin >> taskID;
 
             Task* retrievedTask = myPlan.getTask(task1.getTaskId());
-            std::cout << "Completing Task '" << retrievedTask->getTaskId() << "'..." << std::endl << std::endl;
-            //planService.completeTask(task1.getTaskId());
+
+            //아래 두 줄 수정해야함
+            //std::cout << "Completing Task '" << retrievedTask->getTaskId() << "'..." << std::endl << std::endl;
+            //planService.completeTask(task1.getTaskId()); 
+            std::cin.ignore();
         }
         else if (input == "break") break;
         else {
