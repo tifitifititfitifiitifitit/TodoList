@@ -1,4 +1,4 @@
-#include "../models/Plan.h"
+﻿#include "../models/Plan.h"
 #include <algorithm> // std::remove_if
 
 Plan::Plan(const std::string& id, const std::time_t& planDate, const std::string& planTitle)

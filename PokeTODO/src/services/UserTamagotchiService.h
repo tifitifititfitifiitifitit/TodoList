@@ -1,4 +1,4 @@
-/*
+﻿/*
 #pragma once
 #include "../models/Tamagotchi.h"
 
