@@ -1,5 +1,4 @@
-﻿/*
-#pragma once
+﻿#pragma once
 #include "../models/Tamagotchi.h"
 
 enum class TamagotchiAction { FEED, PLAY };
@@ -11,12 +10,9 @@ private:
 public:
     UserTamagotchiService();
     ~UserTamagotchiService();
-
-    // Tamagotchi management
+   
     void assignTamagotchi(Tamagotchi* newTamagotchi);
     void interactWithTamagotchi(TamagotchiAction action);
 
-    // Getters
     Tamagotchi* getTamagotchi() const;
-}; 
-*/ 
+};
