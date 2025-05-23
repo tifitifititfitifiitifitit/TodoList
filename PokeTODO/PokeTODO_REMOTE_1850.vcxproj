@@ -47,11 +47,6 @@
     <ClCompile Include="src\models\User.cpp" />
     <ClCompile Include="src\services\UserPlanService.cpp" />
     <ClCompile Include="src\services\UserPointService.cpp" />
-<<<<<<< HEAD
-    <ClCompile Include="Tamagotchi.cpp" />
-    <ClCompile Include="TamagotchiState.cpp" />
-    <ClCompile Include="UserTamagothciService.cpp" />
-=======
     <ClCompile Include="Tamagotchi.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
@@ -61,7 +56,6 @@
     <ClCompile Include="UserTamagotchiService.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
->>>>>>> main
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
