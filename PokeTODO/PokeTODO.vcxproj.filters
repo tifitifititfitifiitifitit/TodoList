@@ -101,5 +101,14 @@
     <ClCompile Include="src\main.cpp">
       <Filter>소스 파일\utils</Filter>
     </ClCompile>
+    <ClCompile Include="UserTamagothciService.cpp">
+      <Filter>소스 파일\services</Filter>
+    </ClCompile>
+    <ClCompile Include="Tamagotchi.cpp">
+      <Filter>소스 파일\models</Filter>
+    </ClCompile>
+    <ClCompile Include="TamagotchiState.cpp">
+      <Filter>소스 파일\models</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
