@@ -122,17 +122,7 @@ namespace Tamagotchi {
         std::string getStateName() const override;
     };
 
-    class SickState : public TamagotchiState {
-    public:
-        void handleFeed(Tamagotchi* tamagotchi) override;
-        void handlePlay(Tamagotchi* tamagotchi) override;
-        void checkCondition(Tamagotchi* tamagotchi) override;
-        void onEnterState(Tamagotchi* tamagotchi) override;
-        void onExitState(Tamagotchi* tamagotchi) override;
-        std::string getStateName() const override;
-    };
-
-    class TiredState : public TamagotchiState {
+    class SadState : public TamagotchiState {
     public:
         void handleFeed(Tamagotchi* tamagotchi) override;
         void handlePlay(Tamagotchi* tamagotchi) override;

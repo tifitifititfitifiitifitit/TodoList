@@ -12,6 +12,10 @@
 #include "models/TaskCreateRequest.h" // TaskCreateRequest.h 경로
 #include "models/Task.h"              // Task.h 경로 (TaskStatus, Priority enum 사용)
 
+// 다마고치 테스트를 위한 헤더 추가
+#include "services/UserTamagotchiService.h"
+#include "models/Tamagotchi.h"
+
 // TaskStatus 및 Priority를 문자열로 변환하는 도우미 함수
 std::string statusToString(TaskStatus status) {
     switch (status) {
@@ -284,10 +288,9 @@ struct TempTaskData {
 
 
 int main() {
-#ifdef 0
+    SetConsoleOutputCP(65001); // UTF-8 출력 설정
 
-    SetConsoleOutputCP(65001);
-
+#if 0 // 기존 UI 로직 비활성화
     UserPlanService planService;
 
     Plan plan1 = planService.createPlan(std::time(0), u8"오늘의 할 일");
@@ -535,10 +538,55 @@ int main() {
         }
     }
 #else
-std::cout << "hi" << std::endl;
+    // 다마고치 기능 테스트 코드
+    std::cout << u8"===== 다마고치 테스트 시작 =====" << std::endl;
 
+    UserTamagotchiService tamagotchiService;
+
+    // 새 다마고치 생성 및 할당
+    Tamagotchi::Tamagotchi* myPet = new Tamagotchi::Tamagotchi(1, u8"피카츄");
+    tamagotchiService.assignTamagotchi(myPet);
+
+    Tamagotchi::Tamagotchi* currentPet = tamagotchiService.getTamagotchi();
+    if (currentPet) {
+        std::cout << u8"\n다마고치 이름: " << currentPet->getName() << std::endl;
+        std::cout << u8"초기 상태: " << currentPet->getCurrentStateName() << std::endl;
+        std::cout << u8"행복도: " << currentPet->getHappiness() << u8", 배고픔: " << currentPet->getHunger() << std::endl;
+
+        // 먹이주기 테스트
+        std::cout << u8"\n먹이를 줍니다..." << std::endl;
+        tamagotchiService.interactWithTamagotchi(TamagotchiAction::FEED);
+        std::cout << u8"상태 변경 후: " << currentPet->getCurrentStateName() << std::endl;
+        std::cout << u8"행복도: " << currentPet->getHappiness() << u8", 배고픔: " << currentPet->getHunger() << std::endl;
+
+        // 놀아주기 테스트
+        std::cout << u8"\n놀아줍니다..." << std::endl;
+        tamagotchiService.interactWithTamagotchi(TamagotchiAction::PLAY);
+        std::cout << u8"상태 변경 후: " << currentPet->getCurrentStateName() << std::endl;
+        std::cout << u8"행복도: " << currentPet->getHappiness() << u8", 배고픔: " << currentPet->getHunger() << std::endl;
+
+        // 여러 번 상호작용하여 상태 변화 관찰 (예: 배고픔 상태 만들기)
+        std::cout << u8"\n계속 놀아줘서 배고프게 만들기..." << std::endl;
+        for (int i = 0; i < 15; ++i) { // 여러 번 놀아주면 배고픔 수치가 올라갈 것으로 예상
+            tamagotchiService.interactWithTamagotchi(TamagotchiAction::PLAY);
+            if ((i + 1) % 5 == 0) { // 5번마다 상태 출력
+                 std::cout << u8"놀이 " << (i+1) << u8"회 후: " << currentPet->getCurrentStateName()
+                           << u8", 행복도: " << currentPet->getHappiness()
+                           << u8", 배고픔: " << currentPet->getHunger() << std::endl;
+            }
+        }
+         std::cout << u8"최종 상태: " << currentPet->getCurrentStateName() << std::endl;
+         std::cout << u8"행복도: " << currentPet->getHappiness() << u8", 배고픔: " << currentPet->getHunger() << std::endl;
+
+    }
+    else {
+        std::cout << u8"다마고치가 할당되지 않았습니다." << std::endl;
+    }
+
+    std::cout << u8"\n===== 다마고치 테스트 종료 =====" << std::endl;
+
+    // UserTamagotchiService의 소멸자가 할당된 다마고치 메모리를 해제합니다.
 #endif // 0
-
 
     return 0;
 }

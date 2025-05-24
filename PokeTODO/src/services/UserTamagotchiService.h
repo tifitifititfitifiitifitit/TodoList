@@ -12,14 +12,14 @@ enum class TamagotchiAction { FEED, PLAY };
 class UserTamagotchiService {
 private:
     // fully-qualified name으로 바꿔 줍니다.
-    Tamagotchi* tamagotchi;
+    Tamagotchi::Tamagotchi* tamagotchi;
 
 public:
     UserTamagotchiService();
     ~UserTamagotchiService();
    
-    void assignTamagotchi(Tamagotchi* newTamagotchi);
+    void assignTamagotchi(Tamagotchi::Tamagotchi* newTamagotchi);
     void interactWithTamagotchi(TamagotchiAction action);
 
-    Tamagotchi* getTamagotchi() const;
+    Tamagotchi::Tamagotchi* getTamagotchi() const;
 };
