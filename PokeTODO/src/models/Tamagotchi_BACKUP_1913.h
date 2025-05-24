@@ -1,4 +1,12 @@
-﻿﻿#pragma once
+<<<<<<< HEAD
+﻿// models/Tamagotchi.h
+#pragma once
+#include <string>
+#include "TamagotchiState.h"
+
+namespace Tamagotchi {
+=======
+﻿#pragma once
 #include <string>
 #include "TamagotchiState.h"
 
@@ -12,6 +20,7 @@ private:
     int happiness;
     int hunger;
     TamagotchiState* currentState;
+>>>>>>> main
 
     class Tamagotchi {
     private:
@@ -22,6 +31,31 @@ private:
         int hunger;
         TamagotchiState* currentState;
 
+<<<<<<< HEAD
+    public:
+        Tamagotchi(int id, const std::string& pokeName);
+        ~Tamagotchi();
+        void setState(TamagotchiState* newState);
+        std::string getCurrentStateName() const;
+        void feed();
+        void play();
+        void increaseHunger();
+        void decreaseHappiness(int amount);
+        void levelUp();
+        void updateStatus();
+        int getPokeId() const;
+        std::string getName() const;
+        int getLevel() const;
+        int getHappiness() const;
+        int getHunger() const;
+        TamagotchiState* getCurrentState() const;
+        void setName(const std::string& newName);
+        void setHappiness(int value);
+        void setHunger(int value);
+    };
+
+} // namespace Tamagotchi
+=======
     // 복사 생성자와 복사 대입 연산자 삭제 (포인터 관리 때문에)
     Tamagotchi(const Tamagotchi&) = delete;
     Tamagotchi& operator=(const Tamagotchi&) = delete;
@@ -51,3 +85,4 @@ private:
     void setHappiness(int value);
     void setHunger(int value);
 };
+>>>>>>> main

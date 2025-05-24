@@ -101,14 +101,22 @@
     <ClCompile Include="src\main.cpp">
       <Filter>소스 파일\utils</Filter>
     </ClCompile>
+<<<<<<< HEAD
+    <ClCompile Include="UserTamagothciService.cpp">
+=======
     <ClCompile Include="UserTamagotchiService.cpp">
+>>>>>>> main
       <Filter>소스 파일\services</Filter>
     </ClCompile>
     <ClCompile Include="Tamagotchi.cpp">
       <Filter>소스 파일\models</Filter>
     </ClCompile>
     <ClCompile Include="TamagotchiState.cpp">
+<<<<<<< HEAD
+      <Filter>소스 파일\models</Filter>
+=======
       <Filter>소스 파일\interfaces</Filter>
+>>>>>>> main
     </ClCompile>
   </ItemGroup>
 </Project>
