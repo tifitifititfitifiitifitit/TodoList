@@ -535,7 +535,7 @@ int main() {
         }
     }
 #else
-
+std::cout << "hi" << std::endl;
 
 #endif // 0
 

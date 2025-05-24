@@ -1,5 +1,5 @@
-﻿#include "src/models/Tamagotchi.h"
-#include "src/models/TamagotchiState.h"
+﻿#include "Tamagotchi.h"
+#include "TamagotchiState.h"
 #include <algorithm>
 
 namespace Tamagotchi {

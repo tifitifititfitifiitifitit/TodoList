@@ -1,4 +1,4 @@
-﻿﻿#pragma once
+﻿#pragma once
 #include <string>
 #include "TamagotchiState.h"
 
@@ -12,15 +12,6 @@ private:
     int happiness;
     int hunger;
     TamagotchiState* currentState;
-
-    class Tamagotchi {
-    private:
-        int pokeId;
-        std::string name;
-        int level;
-        int happiness;
-        int hunger;
-        TamagotchiState* currentState;
 
     // 복사 생성자와 복사 대입 연산자 삭제 (포인터 관리 때문에)
     Tamagotchi(const Tamagotchi&) = delete;

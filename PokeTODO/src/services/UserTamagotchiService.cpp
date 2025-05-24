@@ -1,6 +1,6 @@
-﻿#include "src/services/UserTamagotchiService.h"
-#include "src/models/Tamagotchi.h"
-#include "src/models/TamagotchiState.h"
+﻿#include "UserTamagotchiService.h"
+#include "../models/Tamagotchi.h"
+#include "../models/TamagotchiState.h"
 #include <iostream> 
 #include <string>   
 #include <vector>   
