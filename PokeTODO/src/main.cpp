@@ -16,6 +16,9 @@
 #include "services/UserTamagotchiService.h"
 #include "models/Tamagotchi.h"
 
+
+
+
 // TaskStatus 및 Priority를 문자열로 변환하는 도우미 함수
 std::string statusToString(TaskStatus status) {
     switch (status) {
@@ -101,7 +104,8 @@ enum class UiState {
     PROMPT_PLAN_ID_FOR_REMOVE_TASK,
     PROMPT_TASK_ID_FOR_REMOVE,
     PROMPT_PLAN_ID_FOR_COMPLETE_TASK,
-    PROMPT_TASK_ID_FOR_COMPLETE
+    PROMPT_TASK_ID_FOR_COMPLETE,
+    PROMPT_ENTER_TAMAGOTCHI_MODE
 };
 
 // 오른쪽 패널에 표시될 기본 내용을 반환하는 함수
@@ -290,8 +294,12 @@ struct TempTaskData {
 int main() {
     SetConsoleOutputCP(65001); // UTF-8 출력 설정
 
-#if 0 // 기존 UI 로직 비활성화
+#if 1 // 기존 UI 로직 비활성화
     UserPlanService planService;
+
+    UserTamagotchiService tamagotchiService;
+    Tamagotchi::Tamagotchi* myPet = new Tamagotchi::Tamagotchi(1, u8"피카츄");
+    tamagotchiService.assignTamagotchi(myPet);
 
     Plan plan1 = planService.createPlan(std::time(0), u8"오늘의 할 일");
     Plan plan2 = planService.createPlan(std::time(0) + 10, u8"내일의 준비물");
@@ -312,6 +320,7 @@ int main() {
         u8"작업 추가하기",
         u8"작업 제거하기",
         u8"작업 완료하기",
+        u8"다마고치 모드",
         u8"종료"
     };
     int selectedItem = 0;
@@ -343,13 +352,13 @@ int main() {
             currentAppState == UiState::PROMPT_PLAN_ID_FOR_REMOVE_TASK ||
             currentAppState == UiState::PROMPT_TASK_ID_FOR_REMOVE ||
             currentAppState == UiState::PROMPT_PLAN_ID_FOR_COMPLETE_TASK ||
+            currentAppState == UiState::PROMPT_ENTER_TAMAGOTCHI_MODE ||
             currentAppState == UiState::PROMPT_TASK_ID_FOR_COMPLETE
             ) {
             // 이러한 상태들은 displayMenu 이후 바로 입력을 받아야 함.
             // _getch()를 여기서 또 호출하면 안됨.
             // 해당 상태의 Enter 처리 부분에서 입력을 받도록 로직 구성.
         }
-
 
         clearKeyboardBuffer();
         int key = _getch();
@@ -407,6 +416,12 @@ int main() {
                     rightPanelDynamicContent = getPlanListStringsForPanel(planService, "");
                     inputPrompt = u8"작업을 완료할 플랜 ID: ";
                     currentAppState = UiState::PROMPT_PLAN_ID_FOR_COMPLETE_TASK;
+                }
+                else if (menuItems[selectedItem] == u8"다마고치 모드") {
+                    rightPanelDynamicContent = {
+                        u8"다마고치에게 먹이를 주거나 놀아주세요",
+                    };
+                    currentAppState = UiState::PROMPT_ENTER_TAMAGOTCHI_MODE;
                 }
                 else if (menuItems[selectedItem] == u8"종료") {
                     running = false;
@@ -517,6 +532,38 @@ int main() {
                 // 이 부분은 코드가 길어져 생략. 이전 버전의 작업 추가 로직을 참고하여 유사하게 구현.
                 // 모든 정보 입력 후 TaskCreateRequest 만들고 addTaskToPlan 호출.
 
+            case UiState::PROMPT_ENTER_TAMAGOTCHI_MODE:
+                while (1) {
+                    displayMenu(menuItems, selectedItem, rightPanelDynamicContent, inputPrompt);
+                    //clearKeyboardBuffer();
+                    int TagamotchiInput = _getch();
+                    if (TagamotchiInput == 'F' || TagamotchiInput == 'f') {
+                        tamagotchiService.interactWithTamagotchi(TamagotchiAction::FEED);
+                    }
+                    else if (TagamotchiInput == 'P' || TagamotchiInput == 'p') {
+                        tamagotchiService.interactWithTamagotchi(TamagotchiAction::PLAY);
+                    }
+                    else if (TagamotchiInput == 27) {
+                        currentAppState = UiState::SHOWING_MAIN_MENU;
+                        rightPanelDynamicContent = getDefaultRightPanelContent();
+                        break;
+                    }
+
+                    Tamagotchi::Tamagotchi* pet = tamagotchiService.getTamagotchi();
+                    rightPanelDynamicContent = {
+                        u8"===== 다마고치 상태 =====",
+                        u8"이름: " + pet->getName(),
+                        u8"상태: " + pet->getCurrentStateName(),
+                        u8"행복도: " + std::to_string(pet->getHappiness()),
+                        u8"배고픔: " + std::to_string(pet->getHunger()),
+                        u8"",
+                        u8"[F] 먹이 주기",
+                        u8"[P] 놀아주기",
+                        u8"[ESC] 나가기"
+                    };
+                }
+                break;
+
             default:
                 currentAppState = UiState::SHOWING_MAIN_MENU;
                 rightPanelDynamicContent = getDefaultRightPanelContent();
@@ -524,11 +571,11 @@ int main() {
             }
 
         }
-        else if (key == 27) { // ESC 키
+        else if (key == 27) {
             if (currentAppState != UiState::SHOWING_MAIN_MENU) {
                 currentAppState = UiState::SHOWING_MAIN_MENU;
                 rightPanelDynamicContent = getDefaultRightPanelContent();
-                inputPrompt = ""; // 프롬프트도 초기화
+                inputPrompt = "";
             }
             else {
                 running = false;
@@ -569,14 +616,13 @@ int main() {
         std::cout << u8"\n계속 놀아줘서 배고프게 만들기..." << std::endl;
         for (int i = 0; i < 15; ++i) { // 여러 번 놀아주면 배고픔 수치가 올라갈 것으로 예상
             tamagotchiService.interactWithTamagotchi(TamagotchiAction::PLAY);
-            if ((i + 1) % 5 == 0) { // 5번마다 상태 출력
-                 std::cout << u8"놀이 " << (i+1) << u8"회 후: " << currentPet->getCurrentStateName()
-                           << u8", 행복도: " << currentPet->getHappiness()
-                           << u8", 배고픔: " << currentPet->getHunger() << std::endl;
-            }
+
+            std::cout << u8"놀이 " << (i + 1) << u8"회 후: " << currentPet->getCurrentStateName()
+                << u8", 행복도: " << currentPet->getHappiness()
+                << u8", 배고픔: " << currentPet->getHunger() << std::endl;
         }
-         std::cout << u8"최종 상태: " << currentPet->getCurrentStateName() << std::endl;
-         std::cout << u8"행복도: " << currentPet->getHappiness() << u8", 배고픔: " << currentPet->getHunger() << std::endl;
+        std::cout << u8"최종 상태: " << currentPet->getCurrentStateName() << std::endl;
+        std::cout << u8"행복도: " << currentPet->getHappiness() << u8", 배고픔: " << currentPet->getHunger() << std::endl;
 
     }
     else {
