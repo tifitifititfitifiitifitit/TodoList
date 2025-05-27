@@ -90,21 +90,19 @@ std::string padToWidth(const std::string& input, int target_visual_width, char p
 // 새로운 UI 상태를 정의합니다.
 enum class UiState {
     SHOWING_MAIN_MENU,       // 기본 메뉴 표시 상태 (오른쪽 패널은 기본 정보)
-    VIEWING_PLANS,           // 플랜 목록을 오른쪽 패널에 표시
-    PROMPT_PLAN_ID_FOR_TITLE, // 플랜 제목 변경을 위해 플랜 ID 입력 대기
-    PROMPT_NEW_PLAN_TITLE,   // 새 플랜 제목 입력 대기
-    PROMPT_PLAN_ID_FOR_TASKS, // 작업 목록 보기를 위해 플랜 ID 입력 대기
+    VIEWING_CALENDAR,        // 캘린더 보기 상태
+    SELECTING_PLAN_FOR_TASKS, // 작업 목록 보기를 위해 플랜 선택
     VIEWING_TASKS,           // 특정 플랜의 작업 목록을 오른쪽 패널에 표시
-    PROMPT_PLAN_ID_FOR_ADD_TASK, // 작업 추가를 위해 플랜 ID 입력 대기
+    SELECTING_PLAN_FOR_ADD_TASK, // 작업 추가를 위해 플랜 선택
     ADDING_TASK_DETAILS_TITLE,
     ADDING_TASK_DETAILS_DESC,
     ADDING_TASK_DETAILS_PRIORITY,
     ADDING_TASK_DETAILS_DEADLINE,
     ADDING_TASK_DETAILS_TAGS,
-    PROMPT_PLAN_ID_FOR_REMOVE_TASK,
-    PROMPT_TASK_ID_FOR_REMOVE,
-    PROMPT_PLAN_ID_FOR_COMPLETE_TASK,
-    PROMPT_TASK_ID_FOR_COMPLETE,
+    SELECTING_PLAN_FOR_REMOVE_TASK, // 작업 제거를 위해 플랜 선택
+    SELECTING_TASK_FOR_REMOVE, // 작업 제거를 위해 작업 선택
+    SELECTING_PLAN_FOR_COMPLETE_TASK, // 작업 완료를 위해 플랜 선택
+    SELECTING_TASK_FOR_COMPLETE, // 작업 완료를 위해 작업 선택
     PROMPT_ENTER_TAMAGOTCHI_MODE
 };
 
@@ -119,7 +117,7 @@ std::vector<std::string> getDefaultRightPanelContent() {
     };
 }
 
-std::vector<std::string> getPlanListStringsForPanel(UserPlanService& planService, const std::string& instruction = u8"엔터 키를 누르면 메뉴로 돌아갑니다.") {
+std::vector<std::string> getPlanListStringsForPanel(UserPlanService& planService, const std::string& instruction = u8"엔터 키를 누르면 메뉴로 돌아갑니다.", int selectedPlanIndex = -1) {
     std::vector<std::string> content;
     content.push_back(u8"--- 플랜 목록 ---");
     const auto& plans = planService.getPlans();
@@ -127,10 +125,13 @@ std::vector<std::string> getPlanListStringsForPanel(UserPlanService& planService
         content.push_back(u8"  표시할 플랜이 없습니다.");
     }
     else {
+        int planIndex = 0;
         for (const auto& pair : plans) {
             const std::vector<Plan>& planlist = pair.second;
             for (const auto& plan : planlist) {
-                content.push_back(u8"  [" + plan.getPlanId() + u8"] 제목: " + plan.getTitle());
+                std::string prefix = (planIndex == selectedPlanIndex) ? u8" > " : u8"   ";
+                content.push_back(prefix + plan.getTitle());
+                planIndex++;
             }
         }
     }
@@ -141,7 +142,33 @@ std::vector<std::string> getPlanListStringsForPanel(UserPlanService& planService
     return content;
 }
 
-std::vector<std::string> getTaskListStringsForPanel(Plan* plan, const std::string& instruction = u8"엔터 키를 누르면 메뉴로 돌아갑니다.") {
+// 플랜 개수를 반환하는 함수
+int getPlanCount(UserPlanService& planService) {
+    int count = 0;
+    const auto& plans = planService.getPlans();
+    for (const auto& pair : plans) {
+        count += pair.second.size();
+    }
+    return count;
+}
+
+// 인덱스로 플랜을 가져오는 함수
+Plan* getPlanByIndex(UserPlanService& planService, int index) {
+    int currentIndex = 0;
+    const auto& plans = planService.getPlans();
+    for (const auto& pair : plans) {
+        const std::vector<Plan>& planlist = pair.second;
+        for (const auto& plan : planlist) {
+            if (currentIndex == index) {
+                return const_cast<Plan*>(&plan);
+            }
+            currentIndex++;
+        }
+    }
+    return nullptr;
+}
+
+std::vector<std::string> getTaskListStringsForPanel(Plan* plan, const std::string& instruction = u8"엔터 키를 누르면 메뉴로 돌아갑니다.", int selectedTaskIndex = -1) {
     std::vector<std::string> content;
     if (!plan) {
         content.push_back(u8"  플랜이 유효하지 않습니다.");
@@ -154,8 +181,10 @@ std::vector<std::string> getTaskListStringsForPanel(Plan* plan, const std::strin
         content.push_back(u8"  표시할 작업이 없습니다.");
     }
     else {
-        for (const auto& task : tasks) {
-            content.push_back(u8"  [" + task.getTaskId() + u8"] " + task.getTitle() +
+        for (int i = 0; i < static_cast<int>(tasks.size()); ++i) {
+            const auto& task = tasks[i];
+            std::string prefix = (i == selectedTaskIndex) ? u8" > " : u8"   ";
+            content.push_back(prefix + u8"[" + task.getTaskId() + u8"] " + task.getTitle() +
                 u8" (우선순위: " + priorityToString(task.getPriority()) +
                 u8", 상태: " + statusToString(task.getStatus()) + u8")");
         }
@@ -164,6 +193,76 @@ std::vector<std::string> getTaskListStringsForPanel(Plan* plan, const std::strin
     if (!instruction.empty()) {
         content.push_back(instruction);
     }
+    return content;
+}
+
+// 2025년 5월 캘린더 생성 함수 (선택된 날짜 강조)
+std::vector<std::string> getCalendarStringsForPanel(int selectedDay = 1) {
+    std::vector<std::string> content;
+    content.push_back(u8"        2025년 5월");
+    content.push_back(u8"");
+    content.push_back(u8" 일  월  화  수  목  금  토");
+    
+    // 각 주별로 날짜 표시 (선택된 날짜는 > < 로 강조)
+    std::string week1 = u8"                  ";
+    for (int day = 1; day <= 3; ++day) {
+        if (day == selectedDay) {
+            week1 += u8">" + std::to_string(day) + u8"<";
+        } else {
+            week1 += (day < 10 ? u8" " : u8"") + std::to_string(day) + u8" ";
+        }
+        if (day < 3) week1 += u8" ";
+    }
+    content.push_back(week1);
+    
+    std::string week2 = u8" ";
+    for (int day = 4; day <= 10; ++day) {
+        if (day == selectedDay) {
+            week2 += u8">" + std::to_string(day) + u8"<";
+        } else {
+            week2 += (day < 10 ? u8" " : u8"") + std::to_string(day) + u8" ";
+        }
+        if (day < 10) week2 += u8" ";
+    }
+    content.push_back(week2);
+    
+    std::string week3 = u8" ";
+    for (int day = 11; day <= 17; ++day) {
+        if (day == selectedDay) {
+            week3 += u8">" + std::to_string(day) + u8"<";
+        } else {
+            week3 += std::to_string(day) + u8" ";
+        }
+        if (day < 17) week3 += u8" ";
+    }
+    content.push_back(week3);
+    
+    std::string week4 = u8" ";
+    for (int day = 18; day <= 24; ++day) {
+        if (day == selectedDay) {
+            week4 += u8">" + std::to_string(day) + u8"<";
+        } else {
+            week4 += std::to_string(day) + u8" ";
+        }
+        if (day < 24) week4 += u8" ";
+    }
+    content.push_back(week4);
+    
+    std::string week5 = u8" ";
+    for (int day = 25; day <= 31; ++day) {
+        if (day == selectedDay) {
+            week5 += u8">" + std::to_string(day) + u8"<";
+        } else {
+            week5 += std::to_string(day) + u8" ";
+        }
+        if (day < 31) week5 += u8" ";
+    }
+    content.push_back(week5);
+    
+    content.push_back(u8"");
+    content.push_back(u8"선택된 날짜: " + std::to_string(selectedDay) + u8"일");
+    content.push_back(u8"방향키로 날짜 선택, 엔터로 확인");
+    content.push_back(u8"ESC로 메뉴로 돌아가기");
     return content;
 }
 
@@ -301,21 +400,29 @@ int main() {
     Tamagotchi::Tamagotchi* myPet = new Tamagotchi::Tamagotchi(1, u8"피카츄");
     tamagotchiService.assignTamagotchi(myPet);
 
-    Plan plan1 = planService.createPlan(std::time(0), u8"오늘의 할 일");
-    Plan plan2 = planService.createPlan(std::time(0) + 10, u8"내일의 준비물");
-
-    if (plan1.getPlanId() != "error-plan") {
-        planService.addTaskToPlan(plan1.getPlanId(), TaskCreateRequest(u8"C++ UI 개선", u8"아스키 아트와 메뉴 시스템 통합", Priority::HIGH, std::time(0) + 3600, { u8"개발", u8"UI" }));
-        planService.addTaskToPlan(plan1.getPlanId(), TaskCreateRequest(u8"저녁 식사 준비", u8"된장찌개 만들기", Priority::MEDIUM, std::time(0) + 7200, { u8"요리" }));
+    // 요일별 7개 Plan 생성
+    std::vector<std::string> dayNames = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+    std::vector<Plan> weeklyPlans;
+    
+    std::time_t baseTime = std::time(0);
+    for (int i = 0; i < 7; ++i) {
+        Plan dayPlan = planService.createPlan(baseTime + (i * 86400), dayNames[i]); // 하루씩 증가
+        weeklyPlans.push_back(dayPlan);
     }
-    if (plan2.getPlanId() != "error-plan") {
-        planService.addTaskToPlan(plan2.getPlanId(), TaskCreateRequest(u8"발표 자료 준비", u8"최종 검토 및 수정", Priority::HIGH, std::time(0) + 86400, { u8"업무" }));
+
+    // 월요일(Mon)에 샘플 작업 추가
+    if (!weeklyPlans.empty() && weeklyPlans[0].getPlanId() != "error-plan") {
+        planService.addTaskToPlan(weeklyPlans[0].getPlanId(), TaskCreateRequest(u8"C++ UI 개선", u8"아스키 아트와 메뉴 시스템 통합", Priority::HIGH, baseTime + 3600, { u8"개발", u8"UI" }));
+        planService.addTaskToPlan(weeklyPlans[0].getPlanId(), TaskCreateRequest(u8"저녁 식사 준비", u8"된장찌개 만들기", Priority::MEDIUM, baseTime + 7200, { u8"요리" }));
+    }
+    
+    // 화요일(Tue)에 샘플 작업 추가
+    if (weeklyPlans.size() > 1 && weeklyPlans[1].getPlanId() != "error-plan") {
+        planService.addTaskToPlan(weeklyPlans[1].getPlanId(), TaskCreateRequest(u8"발표 자료 준비", u8"최종 검토 및 수정", Priority::HIGH, baseTime + 86400, { u8"업무" }));
     }
 
     std::vector<std::string> menuItems = {
-        u8"플랜 보기",
-        u8"플랜 추가하기",
-        u8"플랜 제목 변경",
+        u8"캘린더 보기",
         u8"작업 목록 보기",
         u8"작업 추가하기",
         u8"작업 제거하기",
@@ -332,6 +439,9 @@ int main() {
     std::string currentTaskIdContext;
     TempTaskData tempTaskData; // 작업 추가 시 임시 데이터 저장
     std::string inputPrompt = "";
+    int selectedCalendarDay = 1; // 캘린더에서 선택된 날짜
+    int selectedPlanIndex = 0; // 플랜 선택에서 선택된 인덱스
+    int selectedTaskIndex = 0; // 작업 선택에서 선택된 인덱스
 
 
     while (running) {
@@ -340,20 +450,12 @@ int main() {
 
         // 상태에 따른 입력 처리 (std::cin, std::getline 사용 부분)
         // _getch()는 비차단형 입력이 아니므로, 특정 상태에서 입력을 기다려야 함
-        if (currentAppState == UiState::PROMPT_PLAN_ID_FOR_TASKS ||
-            currentAppState == UiState::PROMPT_PLAN_ID_FOR_TITLE ||
-            currentAppState == UiState::PROMPT_NEW_PLAN_TITLE ||
-            currentAppState == UiState::PROMPT_PLAN_ID_FOR_ADD_TASK ||
-            currentAppState == UiState::ADDING_TASK_DETAILS_TITLE ||
+        if (currentAppState == UiState::ADDING_TASK_DETAILS_TITLE ||
             currentAppState == UiState::ADDING_TASK_DETAILS_DESC ||
             currentAppState == UiState::ADDING_TASK_DETAILS_PRIORITY ||
             currentAppState == UiState::ADDING_TASK_DETAILS_DEADLINE ||
             currentAppState == UiState::ADDING_TASK_DETAILS_TAGS ||
-            currentAppState == UiState::PROMPT_PLAN_ID_FOR_REMOVE_TASK ||
-            currentAppState == UiState::PROMPT_TASK_ID_FOR_REMOVE ||
-            currentAppState == UiState::PROMPT_PLAN_ID_FOR_COMPLETE_TASK ||
-            currentAppState == UiState::PROMPT_ENTER_TAMAGOTCHI_MODE ||
-            currentAppState == UiState::PROMPT_TASK_ID_FOR_COMPLETE
+            currentAppState == UiState::PROMPT_ENTER_TAMAGOTCHI_MODE
             ) {
             // 이러한 상태들은 displayMenu 이후 바로 입력을 받아야 함.
             // _getch()를 여기서 또 호출하면 안됨.
@@ -375,6 +477,69 @@ int main() {
                     break;
                 }
             }
+            else if (currentAppState == UiState::VIEWING_CALENDAR) {
+                switch (key) {
+                case 72: // 위쪽 화살표 (일주일 전)
+                    selectedCalendarDay = (selectedCalendarDay - 7 <= 0) ? selectedCalendarDay + 24 : selectedCalendarDay - 7;
+                    if (selectedCalendarDay > 31) selectedCalendarDay = 31;
+                    rightPanelDynamicContent = getCalendarStringsForPanel(selectedCalendarDay);
+                    break;
+                case 80: // 아래쪽 화살표 (일주일 후)
+                    selectedCalendarDay = (selectedCalendarDay + 7 > 31) ? selectedCalendarDay - 24 : selectedCalendarDay + 7;
+                    if (selectedCalendarDay <= 0) selectedCalendarDay = 1;
+                    rightPanelDynamicContent = getCalendarStringsForPanel(selectedCalendarDay);
+                    break;
+                case 75: // 왼쪽 화살표 (하루 전)
+                    selectedCalendarDay = (selectedCalendarDay - 1 <= 0) ? 31 : selectedCalendarDay - 1;
+                    rightPanelDynamicContent = getCalendarStringsForPanel(selectedCalendarDay);
+                    break;
+                case 77: // 오른쪽 화살표 (하루 후)
+                    selectedCalendarDay = (selectedCalendarDay + 1 > 31) ? 1 : selectedCalendarDay + 1;
+                    rightPanelDynamicContent = getCalendarStringsForPanel(selectedCalendarDay);
+                    break;
+                }
+            }
+            else if (currentAppState == UiState::SELECTING_PLAN_FOR_TASKS ||
+                     currentAppState == UiState::SELECTING_PLAN_FOR_ADD_TASK ||
+                     currentAppState == UiState::SELECTING_PLAN_FOR_REMOVE_TASK ||
+                     currentAppState == UiState::SELECTING_PLAN_FOR_COMPLETE_TASK) {
+                int planCount = getPlanCount(planService);
+                if (planCount > 0) {
+                    switch (key) {
+                    case 72: // 위쪽 화살표
+                        selectedPlanIndex = (selectedPlanIndex - 1 + planCount) % planCount;
+                        rightPanelDynamicContent = getPlanListStringsForPanel(planService, u8"방향키로 선택, 엔터로 확인, ESC로 취소", selectedPlanIndex);
+                        break;
+                    case 80: // 아래쪽 화살표
+                        selectedPlanIndex = (selectedPlanIndex + 1) % planCount;
+                        rightPanelDynamicContent = getPlanListStringsForPanel(planService, u8"방향키로 선택, 엔터로 확인, ESC로 취소", selectedPlanIndex);
+                        break;
+                    }
+                }
+            }
+            else if (currentAppState == UiState::SELECTING_TASK_FOR_REMOVE ||
+                     currentAppState == UiState::SELECTING_TASK_FOR_COMPLETE) {
+                Plan* currentPlan = planService.getPlan(currentPlanIdContext);
+                if (currentPlan && !currentPlan->getTasks().empty()) {
+                    int taskCount = static_cast<int>(currentPlan->getTasks().size());
+                    switch (key) {
+                    case 72: // 위쪽 화살표
+                        selectedTaskIndex = (selectedTaskIndex - 1 + taskCount) % taskCount;
+                        rightPanelDynamicContent = getTaskListStringsForPanel(currentPlan, 
+                            (currentAppState == UiState::SELECTING_TASK_FOR_REMOVE) ? 
+                            u8"방향키로 작업 선택, 엔터로 제거, ESC로 취소" : 
+                            u8"방향키로 작업 선택, 엔터로 완료, ESC로 취소", selectedTaskIndex);
+                        break;
+                    case 80: // 아래쪽 화살표
+                        selectedTaskIndex = (selectedTaskIndex + 1) % taskCount;
+                        rightPanelDynamicContent = getTaskListStringsForPanel(currentPlan, 
+                            (currentAppState == UiState::SELECTING_TASK_FOR_REMOVE) ? 
+                            u8"방향키로 작업 선택, 엔터로 제거, ESC로 취소" : 
+                            u8"방향키로 작업 선택, 엔터로 완료, ESC로 취소", selectedTaskIndex);
+                        break;
+                    }
+                }
+            }
         }
         else if (key == 13) { // Enter 키
 
@@ -382,40 +547,31 @@ int main() {
 
             switch (currentAppState) {
             case UiState::SHOWING_MAIN_MENU:
-                if (menuItems[selectedItem] == u8"플랜 보기") {
-                    currentAppState = UiState::VIEWING_PLANS;
-                    rightPanelDynamicContent = getPlanListStringsForPanel(planService);
-                }
-                else if (menuItems[selectedItem] == u8"플랜 추가하기") {
-                    rightPanelDynamicContent = { u8"--- 새 플랜 추가 ---" };
-                    inputPrompt = u8"플랜 제목을 입력하세요: ";
-                    currentAppState = UiState::PROMPT_NEW_PLAN_TITLE; // 새 제목 입력 상태로 변경
-                }
-                else if (menuItems[selectedItem] == u8"플랜 제목 변경") {
-                    rightPanelDynamicContent = getPlanListStringsForPanel(planService, ""); // 안내 문구 없이 목록만
-                    inputPrompt = u8"제목을 변경할 플랜 ID: ";
-                    currentAppState = UiState::PROMPT_PLAN_ID_FOR_TITLE;
+                if (menuItems[selectedItem] == u8"캘린더 보기") {
+                    currentAppState = UiState::VIEWING_CALENDAR;
+                    selectedCalendarDay = 1; // 캘린더 진입 시 1일로 초기화
+                    rightPanelDynamicContent = getCalendarStringsForPanel(selectedCalendarDay);
                 }
                 else if (menuItems[selectedItem] == u8"작업 목록 보기") {
-                    rightPanelDynamicContent = getPlanListStringsForPanel(planService, "");
-                    inputPrompt = u8"작업을 볼 플랜 ID: ";
-                    currentAppState = UiState::PROMPT_PLAN_ID_FOR_TASKS;
+                    selectedPlanIndex = 0;
+                    rightPanelDynamicContent = getPlanListStringsForPanel(planService, u8"방향키로 선택, 엔터로 확인, ESC로 취소", selectedPlanIndex);
+                    currentAppState = UiState::SELECTING_PLAN_FOR_TASKS;
                 }
                 else if (menuItems[selectedItem] == u8"작업 추가하기") {
                     tempTaskData = {}; // 임시 데이터 초기화
-                    rightPanelDynamicContent = getPlanListStringsForPanel(planService, "");
-                    inputPrompt = u8"작업을 추가할 플랜 ID: ";
-                    currentAppState = UiState::PROMPT_PLAN_ID_FOR_ADD_TASK;
+                    selectedPlanIndex = 0;
+                    rightPanelDynamicContent = getPlanListStringsForPanel(planService, u8"방향키로 선택, 엔터로 확인, ESC로 취소", selectedPlanIndex);
+                    currentAppState = UiState::SELECTING_PLAN_FOR_ADD_TASK;
                 }
                 else if (menuItems[selectedItem] == u8"작업 제거하기") {
-                    rightPanelDynamicContent = getPlanListStringsForPanel(planService, "");
-                    inputPrompt = u8"작업을 제거할 플랜 ID: ";
-                    currentAppState = UiState::PROMPT_PLAN_ID_FOR_REMOVE_TASK;
+                    selectedPlanIndex = 0;
+                    rightPanelDynamicContent = getPlanListStringsForPanel(planService, u8"방향키로 선택, 엔터로 확인, ESC로 취소", selectedPlanIndex);
+                    currentAppState = UiState::SELECTING_PLAN_FOR_REMOVE_TASK;
                 }
                 else if (menuItems[selectedItem] == u8"작업 완료하기") {
-                    rightPanelDynamicContent = getPlanListStringsForPanel(planService, "");
-                    inputPrompt = u8"작업을 완료할 플랜 ID: ";
-                    currentAppState = UiState::PROMPT_PLAN_ID_FOR_COMPLETE_TASK;
+                    selectedPlanIndex = 0;
+                    rightPanelDynamicContent = getPlanListStringsForPanel(planService, u8"방향키로 선택, 엔터로 확인, ESC로 취소", selectedPlanIndex);
+                    currentAppState = UiState::SELECTING_PLAN_FOR_COMPLETE_TASK;
                 }
                 else if (menuItems[selectedItem] == u8"다마고치 모드") {
                     rightPanelDynamicContent = {
@@ -430,79 +586,98 @@ int main() {
                 }
                 break;
 
-            case UiState::VIEWING_PLANS:
+            case UiState::VIEWING_CALENDAR:
+                // 캘린더에서 엔터 키를 누르면 선택된 날짜 정보 표시
+                rightPanelDynamicContent = getCalendarStringsForPanel(selectedCalendarDay);
+                rightPanelDynamicContent.push_back(u8"");
+                rightPanelDynamicContent.push_back(u8"선택된 날짜: 2025년 5월 " + std::to_string(selectedCalendarDay) + u8"일");
+                rightPanelDynamicContent.push_back(u8"이 날짜의 할 일을 확인하려면");
+                rightPanelDynamicContent.push_back(u8"'작업 목록 보기'를 이용하세요.");
+                rightPanelDynamicContent.push_back(u8"");
+                rightPanelDynamicContent.push_back(u8"엔터를 다시 누르면 메뉴로 돌아갑니다.");
+                break;
             case UiState::VIEWING_TASKS:
                 currentAppState = UiState::SHOWING_MAIN_MENU;
                 rightPanelDynamicContent = getDefaultRightPanelContent();
                 break;
 
-            case UiState::PROMPT_NEW_PLAN_TITLE:
-                std::getline(std::cin, userInput);
-                if (!userInput.empty()) {
-                    planService.createPlan(std::time(0), userInput);
-                    rightPanelDynamicContent = { u8"플랜 '" + userInput + u8"'이(가) 생성되었습니다." };
-                }
-                else {
-                    rightPanelDynamicContent = { u8"플랜 생성이 취소되었습니다." };
-                }
-                rightPanelDynamicContent.push_back(u8"엔터를 눌러 메뉴로 돌아가세요.");
-                currentAppState = UiState::VIEWING_PLANS; // 임시로 내용 표시 후 엔터 대기 상태로
-                break;
 
-            case UiState::PROMPT_PLAN_ID_FOR_TITLE:
-                std::cin >> userInput; clearCin();
-                currentPlanIdContext = userInput;
-                if (planService.getPlan(currentPlanIdContext)) {
-                    rightPanelDynamicContent = { u8"선택된 플랜: [" + currentPlanIdContext + u8"] " + planService.getPlan(currentPlanIdContext)->getTitle() };
-                    inputPrompt = u8"새 플랜 제목: ";
-                    currentAppState = UiState::PROMPT_NEW_PLAN_TITLE; // 실제로는 새 제목 입력 상태로. PROMPT_NEW_PLAN_TITLE 로직 재활용? 아니면 분리?
-                    // 일단은 플랜 생성/제목변경을 같은 상태로 처리. 더 명확히 하려면 상태 분리.
-                    // 이 경우, PROMPT_NEW_PLAN_TITLE이 아니라 PROMPT_RENAME_PLAN_TITLE 같은 새 상태 필요.
-                    // 여기서는 간결하게 하기 위해 새 제목을 입력받는 상태로 바로 넘어가지 않고,
-                    // 다시 메뉴에서 "플랜 추가"를 선택해야 제목 변경이 되는 것처럼 동작.
-                    // --> 수정: 새 상태를 만들고, 해당 상태에서 새 제목을 입력받도록 해야 함.
-                    // --> 지금은 임시로, ID 입력 받으면 바로 메뉴로.
-                    rightPanelDynamicContent.push_back(u8"기능 구현 중... ID: " + currentPlanIdContext);
-                    rightPanelDynamicContent.push_back(u8"엔터를 누르면 메뉴로 돌아갑니다.");
-                    currentAppState = UiState::VIEWING_PLANS; // 임시
-                }
-                else {
-                    rightPanelDynamicContent = { u8"잘못된 플랜 ID: " + userInput };
-                    rightPanelDynamicContent.push_back(u8"엔터를 눌러 메뉴로 돌아가세요.");
-                    currentAppState = UiState::VIEWING_PLANS; // 임시
-                }
-                break;
-
-
-            case UiState::PROMPT_PLAN_ID_FOR_TASKS:
-                std::cin >> userInput; clearCin();
+            case UiState::SELECTING_PLAN_FOR_TASKS:
                 {
-                    Plan* selectedPlan = planService.getPlan(userInput);
+                    Plan* selectedPlan = getPlanByIndex(planService, selectedPlanIndex);
                     if (selectedPlan) {
-                        currentPlanIdContext = userInput;
+                        currentPlanIdContext = selectedPlan->getPlanId();
                         rightPanelDynamicContent = getTaskListStringsForPanel(selectedPlan);
                         currentAppState = UiState::VIEWING_TASKS;
                     }
-                    else {
-                        rightPanelDynamicContent = { u8"잘못된 플랜 ID 입니다: " + userInput };
-                        rightPanelDynamicContent.push_back(u8"엔터를 누르면 메뉴로 돌아갑니다.");
-                        currentAppState = UiState::VIEWING_PLANS;
+                }
+                break;
+
+            case UiState::SELECTING_PLAN_FOR_ADD_TASK:
+                {
+                    Plan* selectedPlan = getPlanByIndex(planService, selectedPlanIndex);
+                    if (selectedPlan) {
+                        tempTaskData.planId = selectedPlan->getPlanId();
+                        rightPanelDynamicContent = { u8"플랜 [" + tempTaskData.planId + u8"]에 작업 추가 중..." };
+                        inputPrompt = u8"작업 제목: ";
+                        currentAppState = UiState::ADDING_TASK_DETAILS_TITLE;
                     }
                 }
                 break;
 
-            case UiState::PROMPT_PLAN_ID_FOR_ADD_TASK:
-                std::cin >> userInput; clearCin();
-                tempTaskData.planId = userInput;
-                if (planService.getPlan(tempTaskData.planId)) {
-                    rightPanelDynamicContent = { u8"플랜 [" + tempTaskData.planId + u8"]에 작업 추가 중..." };
-                    inputPrompt = u8"작업 제목: ";
-                    currentAppState = UiState::ADDING_TASK_DETAILS_TITLE;
+            case UiState::SELECTING_PLAN_FOR_REMOVE_TASK:
+                {
+                    Plan* selectedPlan = getPlanByIndex(planService, selectedPlanIndex);
+                    if (selectedPlan) {
+                        currentPlanIdContext = selectedPlan->getPlanId();
+                        selectedTaskIndex = 0;
+                        rightPanelDynamicContent = getTaskListStringsForPanel(selectedPlan, u8"방향키로 작업 선택, 엔터로 제거, ESC로 취소", selectedTaskIndex);
+                        currentAppState = UiState::SELECTING_TASK_FOR_REMOVE;
+                    }
                 }
-                else {
-                    rightPanelDynamicContent = { u8"잘못된 플랜 ID: " + userInput };
-                    rightPanelDynamicContent.push_back(u8"엔터를 누르면 메뉴로 돌아가세요.");
-                    currentAppState = UiState::VIEWING_PLANS; // 임시
+                break;
+
+            case UiState::SELECTING_PLAN_FOR_COMPLETE_TASK:
+                {
+                    Plan* selectedPlan = getPlanByIndex(planService, selectedPlanIndex);
+                    if (selectedPlan) {
+                        currentPlanIdContext = selectedPlan->getPlanId();
+                        selectedTaskIndex = 0;
+                        rightPanelDynamicContent = getTaskListStringsForPanel(selectedPlan, u8"방향키로 작업 선택, 엔터로 완료, ESC로 취소", selectedTaskIndex);
+                        currentAppState = UiState::SELECTING_TASK_FOR_COMPLETE;
+                    }
+                }
+                break;
+
+            case UiState::SELECTING_TASK_FOR_REMOVE:
+                {
+                    Plan* currentPlan = planService.getPlan(currentPlanIdContext);
+                    if (currentPlan && selectedTaskIndex < static_cast<int>(currentPlan->getTasks().size())) {
+                        const auto& tasks = currentPlan->getTasks();
+                        const std::string& taskId = tasks[selectedTaskIndex].getTaskId();
+                        
+                        // 작업 제거 기능이 UserPlanService에 없으므로 임시로 메시지만 표시
+                        rightPanelDynamicContent = { u8"작업 제거 기능은 아직 구현되지 않았습니다." };
+                        rightPanelDynamicContent.push_back(u8"선택된 작업: " + tasks[selectedTaskIndex].getTitle());
+                        rightPanelDynamicContent.push_back(u8"엔터를 누르면 메뉴로 돌아갑니다.");
+                        currentAppState = UiState::VIEWING_TASKS;
+                    }
+                }
+                break;
+
+            case UiState::SELECTING_TASK_FOR_COMPLETE:
+                {
+                    Plan* currentPlan = planService.getPlan(currentPlanIdContext);
+                    if (currentPlan && selectedTaskIndex < static_cast<int>(currentPlan->getTasks().size())) {
+                        const auto& tasks = currentPlan->getTasks();
+                        const std::string& taskId = tasks[selectedTaskIndex].getTaskId();
+                        
+                        planService.completeTask(taskId);
+                        rightPanelDynamicContent = { u8"작업이 완료되었습니다!" };
+                        rightPanelDynamicContent.push_back(u8"완료된 작업: " + tasks[selectedTaskIndex].getTitle());
+                        rightPanelDynamicContent.push_back(u8"엔터를 누르면 메뉴로 돌아갑니다.");
+                        currentAppState = UiState::VIEWING_TASKS;
+                    }
                 }
                 break;
 
@@ -511,7 +686,7 @@ int main() {
                 if (userInput.empty()) {
                     rightPanelDynamicContent = { u8"작업 제목은 필수입니다. 추가 취소." };
                     rightPanelDynamicContent.push_back(u8"엔터를 누르면 메뉴로 돌아가세요.");
-                    currentAppState = UiState::VIEWING_PLANS; // 임시
+                    currentAppState = UiState::VIEWING_CALENDAR; // 임시
                     break;
                 }
                 tempTaskData.title = userInput;
