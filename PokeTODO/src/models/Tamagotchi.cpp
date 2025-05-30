@@ -9,7 +9,7 @@ namespace Tamagotchi {
         : pokeId(id)
         , name(pokeName)
         , level(1)
-        , happiness(100)
+        , happiness(50)
         , hunger(0)
         , currentState(nullptr)
     {

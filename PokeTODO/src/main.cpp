@@ -710,7 +710,7 @@ int main() {
             case UiState::PROMPT_ENTER_TAMAGOTCHI_MODE:
                 while (1) {
                     displayMenu(menuItems, selectedItem, rightPanelDynamicContent, inputPrompt);
-                    //clearKeyboardBuffer();
+                    clearKeyboardBuffer();
                     int TagamotchiInput = _getch();
                     if (TagamotchiInput == 'F' || TagamotchiInput == 'f') {
                         tamagotchiService.interactWithTamagotchi(TamagotchiAction::FEED);
