@@ -11,6 +11,7 @@
 #include "services/UserPlanService.h" // UserPlanService.h 경로
 #include "models/TaskCreateRequest.h" // TaskCreateRequest.h 경로
 #include "models/Task.h"              // Task.h 경로 (TaskStatus, Priority enum 사용)
+#include "services/UserPointService.h"              // UserPointService.h 경로
 
 // 다마고치 테스트를 위한 헤더 추가
 #include "services/UserTamagotchiService.h"
@@ -103,7 +104,7 @@ enum class UiState {
     SELECTING_TASK_FOR_REMOVE, // 작업 제거를 위해 작업 선택
     SELECTING_PLAN_FOR_COMPLETE_TASK, // 작업 완료를 위해 플랜 선택
     SELECTING_TASK_FOR_COMPLETE, // 작업 완료를 위해 작업 선택
-    PROMPT_ENTER_TAMAGOTCHI_MODE
+    PROMPT_ENTER_TAMAGOTCHI_MODE,
 };
 
 // 오른쪽 패널에 표시될 기본 내용을 반환하는 함수
@@ -266,7 +267,7 @@ std::vector<std::string> getCalendarStringsForPanel(int selectedDay = 1) {
     return content;
 }
 
-const std::vector<std::string> ASCII_ART = {
+std::vector<std::string> ASCII_ART = {
     u8"⠀⠀⠀⠀⠀⠀⠀⡀⠠⢀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
     u8"⠀⠀⠀⠀⠀⡔⠁⠀⠀⠀⠈⠑⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
     u8"⠀⠀⠀⠀⣜⠃⠀⠀⠀⢘⢳⢆⠘⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
@@ -284,11 +285,11 @@ const std::vector<std::string> ASCII_ART = {
     u8"⠀⠈⠛⡊⠂⠀⠀⠒⠂⠁⠀⠘⢖⣔⣶⡲⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀"
 };
 
-void displayMenu(const std::vector<std::string>& menuItems, int selectedItem, const std::vector<std::string>& rightPanelContent, const std::string& inputPrompt = "") {
+void displayMenu(const std::vector<std::string>& menuItems, int selectedItem, const std::vector<std::string>& rightPanelContent, const std::string& inputPrompt = "", std::vector<std::string> art = ASCII_ART) {
     system("cls");
 
     const std::string BORDER_CHAR = u8"■";
-    const int TOTAL_WIDTH = 70;
+    const int TOTAL_WIDTH = 110;
     const int MENU_PANEL_WIDTH = 28;
     const int CONTENT_PANEL_WIDTH = TOTAL_WIDTH - MENU_PANEL_WIDTH - 3;
     const int INNER_ASCII_WIDTH = TOTAL_WIDTH - 2;
@@ -298,7 +299,7 @@ void displayMenu(const std::vector<std::string>& menuItems, int selectedItem, co
 
     std::cout << BORDER_CHAR << padToWidth("", INNER_ASCII_WIDTH) << BORDER_CHAR << std::endl;
 
-    for (const auto& artLine : ASCII_ART) {
+    for (const auto& artLine : art) {
         int artLineWidth = 0;
         const char* ptr = artLine.c_str();
         while (*ptr) {
@@ -395,9 +396,11 @@ int main() {
 
 #if 1 // 기존 UI 로직 비활성화
     UserPlanService planService;
+    UserPointService PointService;
 
     UserTamagotchiService tamagotchiService;
     Tamagotchi::Tamagotchi* myPet = new Tamagotchi::Tamagotchi(1, u8"피카츄");
+    myPet->setName();
     tamagotchiService.assignTamagotchi(myPet);
 
     // 요일별 7개 Plan 생성
@@ -445,7 +448,7 @@ int main() {
 
 
     while (running) {
-        displayMenu(menuItems, selectedItem, rightPanelDynamicContent, inputPrompt);
+        displayMenu(menuItems, selectedItem, rightPanelDynamicContent, inputPrompt, myPet->getCurrentArt());
         inputPrompt = ""; // 사용 후 초기화
 
         // 상태에 따른 입력 처리 (std::cin, std::getline 사용 부분)
@@ -603,83 +606,84 @@ int main() {
 
 
             case UiState::SELECTING_PLAN_FOR_TASKS:
-                {
-                    Plan* selectedPlan = getPlanByIndex(planService, selectedPlanIndex);
-                    if (selectedPlan) {
-                        currentPlanIdContext = selectedPlan->getPlanId();
-                        rightPanelDynamicContent = getTaskListStringsForPanel(selectedPlan);
-                        currentAppState = UiState::VIEWING_TASKS;
-                    }
+            {
+                Plan* selectedPlan = getPlanByIndex(planService, selectedPlanIndex);
+                if (selectedPlan) {
+                    currentPlanIdContext = selectedPlan->getPlanId();
+                    rightPanelDynamicContent = getTaskListStringsForPanel(selectedPlan);
+                    currentAppState = UiState::VIEWING_TASKS;
                 }
-                break;
+            }
+            break;
 
             case UiState::SELECTING_PLAN_FOR_ADD_TASK:
-                {
-                    Plan* selectedPlan = getPlanByIndex(planService, selectedPlanIndex);
-                    if (selectedPlan) {
-                        tempTaskData.planId = selectedPlan->getPlanId();
-                        rightPanelDynamicContent = { u8"플랜 [" + tempTaskData.planId + u8"]에 작업 추가 중..." };
-                        inputPrompt = u8"작업 제목: ";
-                        currentAppState = UiState::ADDING_TASK_DETAILS_TITLE;
-                    }
+            {
+                Plan* selectedPlan = getPlanByIndex(planService, selectedPlanIndex);
+                if (selectedPlan) {
+                    tempTaskData.planId = selectedPlan->getPlanId();
+                    rightPanelDynamicContent = { u8"플랜 [" + tempTaskData.planId + u8"]에 작업 추가 중..." };
+                    inputPrompt = u8"작업 제목: ";
+                    currentAppState = UiState::ADDING_TASK_DETAILS_TITLE;
                 }
-                break;
+            }
+            break;
 
             case UiState::SELECTING_PLAN_FOR_REMOVE_TASK:
-                {
-                    Plan* selectedPlan = getPlanByIndex(planService, selectedPlanIndex);
-                    if (selectedPlan) {
-                        currentPlanIdContext = selectedPlan->getPlanId();
-                        selectedTaskIndex = 0;
-                        rightPanelDynamicContent = getTaskListStringsForPanel(selectedPlan, u8"방향키로 작업 선택, 엔터로 제거, ESC로 취소", selectedTaskIndex);
-                        currentAppState = UiState::SELECTING_TASK_FOR_REMOVE;
-                    }
+            {
+                Plan* selectedPlan = getPlanByIndex(planService, selectedPlanIndex);
+                if (selectedPlan) {
+                    currentPlanIdContext = selectedPlan->getPlanId();
+                    selectedTaskIndex = 0;
+                    rightPanelDynamicContent = getTaskListStringsForPanel(selectedPlan, u8"방향키로 작업 선택, 엔터로 제거, ESC로 취소", selectedTaskIndex);
+                    currentAppState = UiState::SELECTING_TASK_FOR_REMOVE;
                 }
-                break;
+            }
+            break;
 
             case UiState::SELECTING_PLAN_FOR_COMPLETE_TASK:
-                {
-                    Plan* selectedPlan = getPlanByIndex(planService, selectedPlanIndex);
-                    if (selectedPlan) {
-                        currentPlanIdContext = selectedPlan->getPlanId();
-                        selectedTaskIndex = 0;
-                        rightPanelDynamicContent = getTaskListStringsForPanel(selectedPlan, u8"방향키로 작업 선택, 엔터로 완료, ESC로 취소", selectedTaskIndex);
-                        currentAppState = UiState::SELECTING_TASK_FOR_COMPLETE;
-                    }
+            {
+                Plan* selectedPlan = getPlanByIndex(planService, selectedPlanIndex);
+                if (selectedPlan) {
+                    currentPlanIdContext = selectedPlan->getPlanId();
+                    selectedTaskIndex = 0;
+                    rightPanelDynamicContent = getTaskListStringsForPanel(selectedPlan, u8"방향키로 작업 선택, 엔터로 완료, ESC로 취소", selectedTaskIndex);
+                    currentAppState = UiState::SELECTING_TASK_FOR_COMPLETE;
                 }
-                break;
+            }
+            break;
 
             case UiState::SELECTING_TASK_FOR_REMOVE:
-                {
-                    Plan* currentPlan = planService.getPlan(currentPlanIdContext);
-                    if (currentPlan && selectedTaskIndex < static_cast<int>(currentPlan->getTasks().size())) {
-                        const auto& tasks = currentPlan->getTasks();
-                        const std::string& taskId = tasks[selectedTaskIndex].getTaskId();
-                        
-                        // 작업 제거 기능이 UserPlanService에 없으므로 임시로 메시지만 표시
-                        rightPanelDynamicContent = { u8"작업 제거 기능은 아직 구현되지 않았습니다." };
-                        rightPanelDynamicContent.push_back(u8"선택된 작업: " + tasks[selectedTaskIndex].getTitle());
-                        rightPanelDynamicContent.push_back(u8"엔터를 누르면 메뉴로 돌아갑니다.");
-                        currentAppState = UiState::VIEWING_TASKS;
-                    }
+            {
+                Plan* currentPlan = planService.getPlan(currentPlanIdContext);
+                if (currentPlan && selectedTaskIndex < static_cast<int>(currentPlan->getTasks().size())) {
+                    const auto& tasks = currentPlan->getTasks();
+                    const std::string& taskId = tasks[selectedTaskIndex].getTaskId();
+
+                    // 작업 제거 기능이 UserPlanService에 없으므로 임시로 메시지만 표시
+                    rightPanelDynamicContent = { u8"작업 제거 기능은 아직 구현되지 않았습니다." };
+                    rightPanelDynamicContent.push_back(u8"선택된 작업: " + tasks[selectedTaskIndex].getTitle());
+                    rightPanelDynamicContent.push_back(u8"엔터를 누르면 메뉴로 돌아갑니다.");
+                    currentAppState = UiState::VIEWING_TASKS;
                 }
-                break;
+            }
+            break;
 
             case UiState::SELECTING_TASK_FOR_COMPLETE:
-                {
-                    Plan* currentPlan = planService.getPlan(currentPlanIdContext);
-                    if (currentPlan && selectedTaskIndex < static_cast<int>(currentPlan->getTasks().size())) {
-                        const auto& tasks = currentPlan->getTasks();
-                        const std::string& taskId = tasks[selectedTaskIndex].getTaskId();
-                        
-                        planService.completeTask(taskId);
-                        rightPanelDynamicContent = { u8"작업이 완료되었습니다!" };
-                        rightPanelDynamicContent.push_back(u8"완료된 작업: " + tasks[selectedTaskIndex].getTitle());
-                        rightPanelDynamicContent.push_back(u8"엔터를 누르면 메뉴로 돌아갑니다.");
-                        currentAppState = UiState::VIEWING_TASKS;
-                    }
+            {
+                Plan* currentPlan = planService.getPlan(currentPlanIdContext);
+                if (currentPlan && selectedTaskIndex < static_cast<int>(currentPlan->getTasks().size())) {
+                    const auto& tasks = currentPlan->getTasks();
+                    const std::string& taskId = tasks[selectedTaskIndex].getTaskId();
+
+                    planService.completeTask(taskId);
+                    PointService.addPoints(3);
+                    rightPanelDynamicContent = { u8"작업이 완료되었습니다! 3포인트를 획득했습니다." };
+                    rightPanelDynamicContent.push_back(u8"완료된 작업: " + tasks[selectedTaskIndex].getTitle());
+                    rightPanelDynamicContent.push_back(u8"엔터를 누르면 메뉴로 돌아갑니다.");
+                    currentAppState = UiState::VIEWING_TASKS;
                 }
-                break;
+            }
+            break;
 
             case UiState::ADDING_TASK_DETAILS_TITLE:
                 std::getline(std::cin, userInput);
@@ -707,37 +711,76 @@ int main() {
                 // 이 부분은 코드가 길어져 생략. 이전 버전의 작업 추가 로직을 참고하여 유사하게 구현.
                 // 모든 정보 입력 후 TaskCreateRequest 만들고 addTaskToPlan 호출.
 
-            case UiState::PROMPT_ENTER_TAMAGOTCHI_MODE:
-                while (1) {
-                    displayMenu(menuItems, selectedItem, rightPanelDynamicContent, inputPrompt);
+            case UiState::PROMPT_ENTER_TAMAGOTCHI_MODE: {
+                while (true) {
+                    Tamagotchi::Tamagotchi* pet = tamagotchiService.getTamagotchi();
+
+                    rightPanelDynamicContent = {
+                        u8" Lv." + std::to_string(pet->getLevel()) + "  " + pet->getName() + ")",
+                        u8" 상태: " + pet->getCurrentStateName(),
+                        u8" 행복도: " + std::to_string(pet->getHappiness()),
+                        u8" 배고픔: " + std::to_string(pet->getHunger()),
+                        u8"",
+                        u8" 포인트를 사용하여 다마고치와 상호작용하세요! (남은 포인트: " + std::to_string(PointService.getPoints()) + ")",
+                        u8" [F] 먹이주기",
+                        u8" [P] 놀아주기",
+                        u8" [ESC] 나가기"
+                    };
+
+                    displayMenu(menuItems, selectedItem, rightPanelDynamicContent, inputPrompt, myPet->getCurrentArt());
                     clearKeyboardBuffer();
+
                     int TagamotchiInput = _getch();
+
                     if (TagamotchiInput == 'F' || TagamotchiInput == 'f') {
-                        tamagotchiService.interactWithTamagotchi(TamagotchiAction::FEED);
+                        if (PointService.getPoints() > 0) {
+                            tamagotchiService.interactWithTamagotchi(TamagotchiAction::FEED);
+                            PointService.addPoints(-1);
+                        }
+                        else {
+                            rightPanelDynamicContent = { u8" 포인트가 부족해요!" };
+                            break;
+                        }
                     }
                     else if (TagamotchiInput == 'P' || TagamotchiInput == 'p') {
-                        tamagotchiService.interactWithTamagotchi(TamagotchiAction::PLAY);
+                        if (PointService.getPoints() > 0) {
+                            tamagotchiService.interactWithTamagotchi(TamagotchiAction::PLAY);
+                            PointService.addPoints(-1);
+                        }
+                        else {
+                            rightPanelDynamicContent = { u8" 포인트가 부족해요!" };
+                            break;
+                        }
                     }
-                    else if (TagamotchiInput == 27) {
+                    else if (TagamotchiInput == 'L' || TagamotchiInput == 'l') {
+                        myPet->levelUp();
+                        rightPanelDynamicContent = { u8"" + myPet->getName() + "is now " + std::to_string(myPet->getLevel()) + "Level"};
+                        if (myPet->tryEvolve()) {
+                            rightPanelDynamicContent.push_back(u8"" + myPet->getName() + "is evolved");
+                            myPet->setName();
+                            break;
+                        }
+                        break;
+                    }
+                    else if (TagamotchiInput == 27) { // ESC
                         currentAppState = UiState::SHOWING_MAIN_MENU;
                         rightPanelDynamicContent = getDefaultRightPanelContent();
                         break;
                     }
 
-                    Tamagotchi::Tamagotchi* pet = tamagotchiService.getTamagotchi();
-                    rightPanelDynamicContent = {
-                        u8"===== 다마고치 상태 =====",
-                        u8"이름: " + pet->getName(),
-                        u8"상태: " + pet->getCurrentStateName(),
-                        u8"행복도: " + std::to_string(pet->getHappiness()),
-                        u8"배고픔: " + std::to_string(pet->getHunger()),
-                        u8"",
-                        u8"[F] 먹이 주기",
-                        u8"[P] 놀아주기",
-                        u8"[ESC] 나가기"
-                    };
+                    if (pet->getHappiness() >= 99) {
+                        myPet->levelUp();
+                        rightPanelDynamicContent = { u8"" + myPet->getName() + "is now " + std::to_string(myPet->getLevel()) + "Level" };
+                        if (myPet->tryEvolve()) {
+                            rightPanelDynamicContent.push_back(u8"" + myPet->getName() + "is evolved");
+                            myPet->setName();
+                            break;
+                        }
+                        break;
+                    }                    
                 }
                 break;
+            }
 
             default:
                 currentAppState = UiState::SHOWING_MAIN_MENU;
