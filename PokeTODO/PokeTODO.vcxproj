@@ -28,9 +28,15 @@
     <ClInclude Include="src\models\TaskCreateRequest.h" />
     <ClInclude Include="src\models\TaskUpdateRequest.h" />
     <ClInclude Include="src\models\User.h" />
+    <ClInclude Include="src\PokeTodoApp.h" />
     <ClInclude Include="src\services\UserPlanService.h" />
     <ClInclude Include="src\services\UserPointService.h" />
     <ClInclude Include="src\services\UserTamagotchiService.h" />
+    <ClInclude Include="src\ui\PanelContentGenerator.h" />
+    <ClInclude Include="src\ui\UIManager.h" />
+    <ClInclude Include="src\ui\UIState.h" />
+    <ClInclude Include="src\utils\PlanUtils.h" />
+    <ClInclude Include="src\utils\UIUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
@@ -41,9 +47,14 @@
     <ClCompile Include="src\models\TaskCreateRequest.cpp" />
     <ClCompile Include="src\models\TaskUpdateRequest.cpp" />
     <ClCompile Include="src\models\User.cpp" />
+    <ClCompile Include="src\PokeTodoApp.cpp" />
     <ClCompile Include="src\services\UserPlanService.cpp" />
     <ClCompile Include="src\services\UserPointService.cpp" />
     <ClCompile Include="src\services\UserTamagotchiService.cpp" />
+    <ClCompile Include="src\ui\PanelContentGenerator.cpp" />
+    <ClCompile Include="src\ui\UIManager.cpp" />
+    <ClCompile Include="src\utils\PlanUtils.cpp" />
+    <ClCompile Include="src\utils\UIUtils.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

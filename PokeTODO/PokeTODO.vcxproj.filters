@@ -37,6 +37,12 @@
     <Filter Include="소스 파일\utils">
       <UniqueIdentifier>{c52fdd62-584f-4895-a6d2-4a5cf8624a36}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\ui">
+      <UniqueIdentifier>{e0e3b8b8-c70a-4b8f-8684-171ab6c74bf6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\ui">
+      <UniqueIdentifier>{f0911758-1e01-4559-a21c-95de9c009d90}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\interfaces\INotificationService.h">
@@ -75,6 +81,24 @@
     <ClInclude Include="src\services\UserTamagotchiService.h">
       <Filter>헤더 파일\services</Filter>
     </ClInclude>
+    <ClInclude Include="src\utils\PlanUtils.h">
+      <Filter>헤더 파일\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\UIUtils.h">
+      <Filter>헤더 파일\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\PanelContentGenerator.h">
+      <Filter>헤더 파일\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\UIManager.h">
+      <Filter>헤더 파일\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\UIState.h">
+      <Filter>헤더 파일\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PokeTodoApp.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\models\User.cpp">
@@ -98,9 +122,6 @@
     <ClCompile Include="src\services\UserPointService.cpp">
       <Filter>소스 파일\services</Filter>
     </ClCompile>
-    <ClCompile Include="src\main.cpp">
-      <Filter>소스 파일\utils</Filter>
-    </ClCompile>
     <ClCompile Include="src\models\Tamagotchi.cpp">
       <Filter>소스 파일\models</Filter>
     </ClCompile>
@@ -109,6 +130,24 @@
     </ClCompile>
     <ClCompile Include="src\services\UserTamagotchiService.cpp">
       <Filter>소스 파일\services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\PlanUtils.cpp">
+      <Filter>소스 파일\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\UIUtils.cpp">
+      <Filter>소스 파일\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\PanelContentGenerator.cpp">
+      <Filter>소스 파일\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\UIManager.cpp">
+      <Filter>소스 파일\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PokeTodoApp.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
