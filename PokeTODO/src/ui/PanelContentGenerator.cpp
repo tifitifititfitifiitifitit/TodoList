@@ -66,63 +66,64 @@ std::vector<std::string> PanelContentGenerator::getTaskListStringsForPanel(Plan*
 
 std::vector<std::string> PanelContentGenerator::getCalendarStringsForPanel(int selectedDay) {
     std::vector<std::string> content;
-    content.push_back(u8"        2025년 5월");
+    content.push_back(u8"        2025년 6월");
     content.push_back(u8"");
     content.push_back(u8" 일  월  화  수  목  금  토");
     
     // 각 주별로 날짜 표시 (선택된 날짜는 > < 로 강조)
-    std::string week1 = u8"                  ";
-    for (int day = 1; day <= 3; ++day) {
+    // 6월 1일은 일요일
+    std::string week1 = u8" ";
+    for (int day = 1; day <= 7; ++day) {
         if (day == selectedDay) {
             week1 += u8">" + std::to_string(day) + u8"<";
         } else {
             week1 += (day < 10 ? u8" " : u8"") + std::to_string(day) + u8" ";
         }
-        if (day < 3) week1 += u8" ";
+        if (day < 7) week1 += u8" ";
     }
     content.push_back(week1);
     
     std::string week2 = u8" ";
-    for (int day = 4; day <= 10; ++day) {
+    for (int day = 8; day <= 14; ++day) {
         if (day == selectedDay) {
             week2 += u8">" + std::to_string(day) + u8"<";
         } else {
-            week2 += (day < 10 ? u8" " : u8"") + std::to_string(day) + u8" ";
+            week2 += std::to_string(day) + u8" ";
         }
-        if (day < 10) week2 += u8" ";
+        if (day < 14) week2 += u8" ";
     }
     content.push_back(week2);
     
     std::string week3 = u8" ";
-    for (int day = 11; day <= 17; ++day) {
+    for (int day = 15; day <= 21; ++day) {
         if (day == selectedDay) {
             week3 += u8">" + std::to_string(day) + u8"<";
         } else {
             week3 += std::to_string(day) + u8" ";
         }
-        if (day < 17) week3 += u8" ";
+        if (day < 21) week3 += u8" ";
     }
     content.push_back(week3);
     
     std::string week4 = u8" ";
-    for (int day = 18; day <= 24; ++day) {
+    for (int day = 22; day <= 28; ++day) {
         if (day == selectedDay) {
             week4 += u8">" + std::to_string(day) + u8"<";
         } else {
             week4 += std::to_string(day) + u8" ";
         }
-        if (day < 24) week4 += u8" ";
+        if (day < 28) week4 += u8" ";
     }
     content.push_back(week4);
     
     std::string week5 = u8" ";
-    for (int day = 25; day <= 31; ++day) {
+    for (int day = 29; day <= 30; ++day) {
         if (day == selectedDay) {
             week5 += u8">" + std::to_string(day) + u8"<";
         } else {
             week5 += std::to_string(day) + u8" ";
         }
-        if (day < 31) week5 += u8" ";
+        if (day < 30) week5 += u8" ";
     }
     content.push_back(week5);
     
