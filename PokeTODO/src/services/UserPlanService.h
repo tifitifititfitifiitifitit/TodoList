@@ -18,6 +18,7 @@ public:
     Plan* getPlan(const std::string& planId);
     Task addTaskToPlan(const std::string& planId, const TaskCreateRequest& request);
     void completeTask(const std::string& taskId);
+    void removeTask(const std::string& taskId);
 
     // Getters
     const std::map<std::time_t, std::vector<Plan>>& getPlans() const;

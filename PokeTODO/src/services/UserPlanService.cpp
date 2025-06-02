@@ -68,6 +68,22 @@ void UserPlanService::completeTask(const std::string& taskIdToComplete) {
     std::cerr << "Error: Task with ID " << taskIdToComplete << " not found in any plan." << std::endl;
 }
 
+void UserPlanService::removeTask(const std::string& taskIdToRemove) {
+    for (auto& mapEntry : this->plans) { // 올바른 map 순회 방식
+        std::vector<Plan>& planList = mapEntry.second;
+        for (auto& plan : planList) {
+            Task* task = plan.getTask(taskIdToRemove);
+            if (task) {
+                plan.removeTask(task->getTaskId());
+                return; // Task found and completed, exit function
+            }
+        }
+    }
+    std::cerr << "Error: Task with ID " << taskIdToRemove << " not found in any plan." << std::endl;
+}
+
+
+
 const std::map<std::time_t, std::vector<Plan>>& UserPlanService::getPlans() const {
     return this->plans;
 }

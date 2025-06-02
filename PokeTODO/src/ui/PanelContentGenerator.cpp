@@ -49,12 +49,14 @@ std::vector<std::string> PanelContentGenerator::getTaskListStringsForPanel(Plan*
         content.push_back(u8"  표시할 작업이 없습니다.");
     }
     else {
+        int taskListNum = 1;
         for (int i = 0; i < static_cast<int>(tasks.size()); ++i) {
             const auto& task = tasks[i];
             std::string prefix = (i == selectedTaskIndex) ? u8" > " : u8"   ";
-            content.push_back(prefix + u8"[" + task.getTaskId() + u8"] " + task.getTitle() +
+            content.push_back(prefix + u8"[" + std::to_string(taskListNum) + u8"] " + task.getTitle() +
                 u8" (우선순위: " + priorityToString(task.getPriority()) +
                 u8", 상태: " + statusToString(task.getStatus()) + u8")");
+            taskListNum += 1;
         }
     }
     content.push_back(u8"");

@@ -162,6 +162,7 @@ void PokeTodoApp::handleArrowKeys(int key) {
             Plan* currentPlan = planService.getPlan(currentPlanIdContext);
             if (currentPlan && !currentPlan->getTasks().empty()) {
                 int taskCount = static_cast<int>(currentPlan->getTasks().size());
+
                 switch (key) {
                 case 72: // 위쪽 화살표
                     selectedTaskIndex = (selectedTaskIndex - 1 + taskCount) % taskCount;
@@ -331,19 +332,25 @@ void PokeTodoApp::processTaskSelection() {
     const std::string& taskId = tasks[selectedTaskIndex].getTaskId();
 
     if (currentAppState == UiState::SELECTING_TASK_FOR_REMOVE) {
-        // 작업 제거 기능이 UserPlanService에 없으므로 임시로 메시지만 표시
-        rightPanelDynamicContent = { u8"작업 제거 기능은 아직 구현되지 않았습니다." };
-        rightPanelDynamicContent.push_back(u8"선택된 작업: " + tasks[selectedTaskIndex].getTitle());
+        rightPanelDynamicContent = { u8"[" + (currentPlan->getTask(taskId))->getTitle() + u8"] 작업을 제거했습니다."};
         rightPanelDynamicContent.push_back(u8"엔터를 누르면 메뉴로 돌아갑니다.");
+        planService.removeTask(taskId);
         currentAppState = UiState::VIEWING_TASKS;
     }
     else if (currentAppState == UiState::SELECTING_TASK_FOR_COMPLETE) {
-        planService.completeTask(taskId);
-        pointService.addPoints(3);
-        rightPanelDynamicContent = { u8"작업이 완료되었습니다! 3포인트를 획득했습니다." };
-        rightPanelDynamicContent.push_back(u8"완료된 작업: " + tasks[selectedTaskIndex].getTitle());
-        rightPanelDynamicContent.push_back(u8"엔터를 누르면 메뉴로 돌아갑니다.");
-        currentAppState = UiState::VIEWING_TASKS;
+        if (((planService.getPlan(currentPlanIdContext))->getTask(taskId))->getStatus() == TaskStatus::COMPLETED) {
+            rightPanelDynamicContent = { u8"이미 완료된 작업입니다!" };
+            rightPanelDynamicContent.push_back(u8"엔터를 누르면 메뉴로 돌아갑니다.");
+            currentAppState = UiState::VIEWING_TASKS;
+        }
+        else if (((planService.getPlan(currentPlanIdContext))->getTask(taskId))->getStatus() != TaskStatus::COMPLETED) {
+            planService.completeTask(taskId);
+            pointService.addPoints(3);
+            rightPanelDynamicContent = { u8"작업이 완료되었습니다! 3포인트를 획득했습니다." };
+            rightPanelDynamicContent.push_back(u8"완료된 작업: " + tasks[selectedTaskIndex].getTitle());
+            rightPanelDynamicContent.push_back(u8"엔터를 누르면 메뉴로 돌아갑니다.");
+            currentAppState = UiState::VIEWING_TASKS;
+        }
     }
 }
 
@@ -352,7 +359,7 @@ void PokeTodoApp::processTamagotchiMode() {
         Tamagotchi::Tamagotchi* pet = tamagotchiService.getTamagotchi();
 
         rightPanelDynamicContent = {
-            " Lv." + std::to_string(pet->getLevel()) + "  " + pet->getName() + ")",
+            " Lv." + std::to_string(pet->getLevel()) + "  " + pet->getName(),
             u8" 상태: " + pet->getCurrentStateName(),
             u8" 행복도: " + std::to_string(pet->getHappiness()),
             u8" 배고픔: " + std::to_string(pet->getHunger()),
