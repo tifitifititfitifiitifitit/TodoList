@@ -7,7 +7,7 @@
 #include <ctime>
 #include <conio.h>
 
-PokeTodoApp::PokeTodoApp() 
+PokeTodoApp::PokeTodoApp()
     : currentAppState(UiState::SHOWING_MAIN_MENU)
     , selectedItem(0)
     , running(true)
@@ -203,6 +203,9 @@ void PokeTodoApp::handleEnterKey() {
     case UiState::SELECTING_TASK_FOR_COMPLETE:
         processTaskSelection();
         break;
+    case UiState::DOUBLE_CHECK_FOR_REMOVE_TASK:
+        processDoubleCheck();
+        break;
     case UiState::ADDING_TASK_DETAILS_TITLE:
         processTaskTitleInput();
         break;
@@ -332,10 +335,11 @@ void PokeTodoApp::processTaskSelection() {
     const std::string& taskId = tasks[selectedTaskIndex].getTaskId();
 
     if (currentAppState == UiState::SELECTING_TASK_FOR_REMOVE) {
-        rightPanelDynamicContent = { u8"[" + (currentPlan->getTask(taskId))->getTitle() + u8"] 작업을 제거했습니다."};
-        rightPanelDynamicContent.push_back(u8"엔터를 누르면 메뉴로 돌아갑니다.");
-        planService.removeTask(taskId);
-        currentAppState = UiState::VIEWING_TASKS;
+        rightPanelDynamicContent = { u8"[" + (currentPlan->getTask(taskId))->getTitle() + u8"] 작업을 정말 제거하시겠습니까?" };
+        rightPanelDynamicContent.push_back(u8"");
+        rightPanelDynamicContent.push_back(u8"[ENTER] 제거하기");
+        rightPanelDynamicContent.push_back(u8"[ESC] 나가기");
+        currentAppState = UiState::DOUBLE_CHECK_FOR_REMOVE_TASK;
     }
     else if (currentAppState == UiState::SELECTING_TASK_FOR_COMPLETE) {
         if (((planService.getPlan(currentPlanIdContext))->getTask(taskId))->getStatus() == TaskStatus::COMPLETED) {
@@ -353,6 +357,20 @@ void PokeTodoApp::processTaskSelection() {
         }
     }
 }
+
+void PokeTodoApp::processDoubleCheck() {
+    Plan* currentPlan = planService.getPlan(currentPlanIdContext);
+    if (!currentPlan || selectedTaskIndex >= static_cast<int>(currentPlan->getTasks().size())) return;
+
+    const auto& tasks = currentPlan->getTasks();
+    const std::string& taskId = tasks[selectedTaskIndex].getTaskId();
+
+    rightPanelDynamicContent = { u8"[" + (currentPlan->getTask(taskId))->getTitle() + u8"] 작업을 제거했습니다." };
+    rightPanelDynamicContent.push_back(u8"엔터를 누르면 메뉴로 돌아갑니다.");
+    planService.removeTask(taskId);
+    currentAppState = UiState::VIEWING_TASKS;
+}
+
 
 void PokeTodoApp::processTamagotchiMode() {
     while (true) {

@@ -57,6 +57,9 @@ private:
     void processTaskTitleInput();
     void processTaskPriorityInput();
 
+    // 작업 삭제 더블 체크 메소드
+    void processDoubleCheck();
+
 public:
     PokeTodoApp();
     ~PokeTodoApp();

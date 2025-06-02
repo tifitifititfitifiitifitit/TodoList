@@ -17,6 +17,7 @@ enum class UiState {
     ADDING_TASK_DETAILS_DEADLINE,
     ADDING_TASK_DETAILS_TAGS,
     SELECTING_PLAN_FOR_REMOVE_TASK, // 작업 제거를 위해 플랜 선택
+    DOUBLE_CHECK_FOR_REMOVE_TASK,
     SELECTING_TASK_FOR_REMOVE, // 작업 제거를 위해 작업 선택
     SELECTING_PLAN_FOR_COMPLETE_TASK, // 작업 완료를 위해 플랜 선택
     SELECTING_TASK_FOR_COMPLETE, // 작업 완료를 위해 작업 선택
