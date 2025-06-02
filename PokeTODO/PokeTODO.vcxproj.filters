@@ -81,6 +81,9 @@
     <ClInclude Include="src\services\UserTamagotchiService.h">
       <Filter>헤더 파일\services</Filter>
     </ClInclude>
+    <ClInclude Include="src\services\FileIOService.h">
+      <Filter>헤더 파일\services</Filter>
+    </ClInclude>
     <ClInclude Include="src\utils\PlanUtils.h">
       <Filter>헤더 파일\utils</Filter>
     </ClInclude>
@@ -129,6 +132,9 @@
       <Filter>소스 파일\models</Filter>
     </ClCompile>
     <ClCompile Include="src\services\UserTamagotchiService.cpp">
+      <Filter>소스 파일\services</Filter>
+    </ClCompile>
+    <ClCompile Include="src\services\FileIOService.cpp">
       <Filter>소스 파일\services</Filter>
     </ClCompile>
     <ClCompile Include="src\utils\PlanUtils.cpp">

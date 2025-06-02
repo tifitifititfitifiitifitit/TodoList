@@ -29,6 +29,7 @@
     <ClInclude Include="src\models\TaskUpdateRequest.h" />
     <ClInclude Include="src\models\User.h" />
     <ClInclude Include="src\PokeTodoApp.h" />
+    <ClInclude Include="src\services\FileIOService.h" />
     <ClInclude Include="src\services\UserPlanService.h" />
     <ClInclude Include="src\services\UserPointService.h" />
     <ClInclude Include="src\services\UserTamagotchiService.h" />
@@ -48,6 +49,7 @@
     <ClCompile Include="src\models\TaskUpdateRequest.cpp" />
     <ClCompile Include="src\models\User.cpp" />
     <ClCompile Include="src\PokeTodoApp.cpp" />
+    <ClCompile Include="src\services\FileIOService.cpp" />
     <ClCompile Include="src\services\UserPlanService.cpp" />
     <ClCompile Include="src\services\UserPointService.cpp" />
     <ClCompile Include="src\services\UserTamagotchiService.cpp" />

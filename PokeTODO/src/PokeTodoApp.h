@@ -4,6 +4,7 @@
 #include "services/UserPlanService.h"
 #include "services/UserPointService.h"
 #include "services/UserTamagotchiService.h"
+#include "services/FileIOService.h"
 #include "models/Tamagotchi.h"
 #include "ui/UIState.h"
 
@@ -35,6 +36,10 @@ private:
     void initializeServices();
     void initializeUI();
     void createSampleData();
+    
+    // 파일 저장/불러오기 메소드들
+    void loadTamagotchiFromFile();
+    void saveTamagotchiToFile();
 
     // 입력 처리 메소드들
     void handleArrowKeys(int key);

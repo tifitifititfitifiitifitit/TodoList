@@ -25,9 +25,16 @@ PokeTodoApp::~PokeTodoApp() {
 }
 
 void PokeTodoApp::initializeServices() {
-    // 다마고치 생성 및 할당
-    myPet = new Tamagotchi::Tamagotchi(1, "피카츄");
-    myPet->setName();
+    // 다마고치 상태 불러오기 시도
+    loadTamagotchiFromFile();
+    
+    // 만약 불러오기에 실패했다면 새 다마고치 생성
+    if (!myPet) {
+        myPet = new Tamagotchi::Tamagotchi(1, "피카츄");
+        myPet->setName();
+        std::cout << u8"새로운 다마고치를 생성했습니다!" << std::endl;
+    }
+    
     tamagotchiService.assignTamagotchi(myPet);
 }
 
@@ -222,9 +229,11 @@ void PokeTodoApp::handleEscapeKey() {
         inputPrompt = "";
     }
     else {
+        // 프로그램 종료 시 다마고치 상태 저장
+        saveTamagotchiToFile();
         running = false;
         system("cls");
-        std::cout << u8"PokeTODO를 종료합니다." << std::endl;
+        std::cout << u8"PokeTODO를 종료합니다. 다음에 또 만나요!" << std::endl;
     }
 }
 
@@ -262,6 +271,8 @@ void PokeTodoApp::processMainMenuSelection() {
         currentAppState = UiState::PROMPT_ENTER_TAMAGOTCHI_MODE;
     }
     else if (menuItems[selectedItem] == u8"종료") {
+        // 프로그램 종료 시 다마고치 상태 저장
+        saveTamagotchiToFile();
         running = false;
         system("cls");
         std::cout << u8"PokeTODO를 종료합니다. 다음에 또 만나요!" << std::endl;
@@ -388,6 +399,8 @@ void PokeTodoApp::processTamagotchiMode() {
             break;
         }
         else if (tamagotchiInput == 27) { // ESC
+            // 다마고치 모드 종료 시 상태 저장
+            saveTamagotchiToFile();
             currentAppState = UiState::SHOWING_MAIN_MENU;
             rightPanelDynamicContent = PanelContentGenerator::getDefaultRightPanelContent();
             break;
@@ -461,4 +474,22 @@ void PokeTodoApp::processTaskPriorityInput() {
     tempTaskData = {};
     inputPrompt = "";
     currentAppState = UiState::SHOWING_MAIN_MENU;
+}
+
+void PokeTodoApp::loadTamagotchiFromFile() {
+    myPet = FileIOService::loadTamagotchiState();
+    if (myPet) {
+        std::cout << u8"저장된 다마고치를 불러왔습니다: " << myPet->getName() << std::endl;
+    }
+}
+
+void PokeTodoApp::saveTamagotchiToFile() {
+    if (myPet) {
+        bool success = FileIOService::saveTamagotchiState(myPet);
+        if (success) {
+            std::cout << u8"다마고치 상태가 저장되었습니다." << std::endl;
+        } else {
+            std::cout << u8"다마고치 상태 저장에 실패했습니다." << std::endl;
+        }
+    }
 } 
