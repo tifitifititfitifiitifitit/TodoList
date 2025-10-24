@@ -82,11 +82,59 @@ void UIManager::displayMenu(const std::vector<std::string>& menuItems, int selec
             content_line_str = inputPrompt;
         }
 
+        // 왼쪽 패널과 오른쪽 패널 출력 방식을 수정했습니다.
+        // 선택된 옵션의 색을 바꿔서 출력하기 위함입니다.
+        // 덕분에 코드가 많이 지저분해지고 읽기 힘들어졌다고 생각합니다만, 그 부분은 죄송합니다.
+
+        std::cout << BORDER_CHAR;
+
+        std::string outputString = padToWidth(menu_line_str, MENU_PANEL_WIDTH);
+        size_t findPos = outputString.find('>'); // '>'의 위치 찾기
+
+        // 현재 출력하고자 하는 옵션이 선택된 옵션이라면 색상을 변경
+        if (findPos != std::string::npos && i != 0) { 
+            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12); // 콘솔 출력 색상 변경후 출력
+            std::cout << outputString;
+            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15); // 출력 후  색상을 원상복구
+        }
+        // 현재 출력하고자 하는 옵션이 선택된 옵션이 아니라면 그대로 출력
+        else std::cout << padToWidth(menu_line_str, MENU_PANEL_WIDTH);
+
+        std::cout << BORDER_CHAR;
+
+        outputString = padToWidth(content_line_str, CONTENT_PANEL_WIDTH);
+        findPos = outputString.find('>'); // '>'의 위치 찾기
+        if (findPos != std::string::npos) {
+            std::cout << outputString.substr(0, findPos);         // '>'전까지 출력
+
+            // 이 부분의 if-else는 '<'의 유무에 있습니다
+            // 캘린더 보기에서는 선택된 날짜가 '> <' 커서 안에 들어가 있지만
+            // 나머지 옵션들은 '>' 만 존재하고 '<' 는 존재하지 않기 때문입니다
+            size_t endPos = outputString.find('<');
+            if (endPos != std::string::npos) {
+                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+                std::cout << outputString.substr(findPos, 1+endPos- findPos);
+                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+                std::cout << outputString.substr(endPos + 1);        // < 이후부터 끝까지
+            }
+            else {
+                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+                std::cout << outputString.substr(findPos);
+                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+            }
+        }
+        else std::cout << outputString;
+
+        std::cout << BORDER_CHAR << std::endl;
+
+        /*
+        // 기존에 사용하던 출력방식 입니다. 혹시 몰라 남겨둡니다
         std::cout << BORDER_CHAR
             << padToWidth(menu_line_str, MENU_PANEL_WIDTH)
             << BORDER_CHAR
             << padToWidth(content_line_str, CONTENT_PANEL_WIDTH)
             << BORDER_CHAR << std::endl;
+         */
     }
 
     for (int i = 0; i < TOTAL_WIDTH; ++i) std::cout << BORDER_CHAR;

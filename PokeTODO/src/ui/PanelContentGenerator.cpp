@@ -1,6 +1,19 @@
 ﻿#include "PanelContentGenerator.h"
 #include "../utils/UIUtils.h"
 
+// ----- cpp 내부에서만 사용하는 달력 공백 맞춤 함수 -----
+namespace {
+    std::string formatDay(int day, int selectedDay) {
+        std::string dayStr;
+        if (day == selectedDay) {
+            dayStr = (day < 10 ? " >" : ">") + std::to_string(day) + "<";
+            return dayStr;
+        }
+        else dayStr = (day < 10 ? "  " : " ") + std::to_string(day); // 폭 맞춤
+        return dayStr + " "; // 숫자 칸 사이 공백 1칸
+    }
+}
+
 std::vector<std::string> PanelContentGenerator::getDefaultRightPanelContent() {
     return {
         u8"   [PokeTODO에 오신 것을 환영합니다!]",
@@ -68,12 +81,21 @@ std::vector<std::string> PanelContentGenerator::getTaskListStringsForPanel(Plan*
 
 std::vector<std::string> PanelContentGenerator::getCalendarStringsForPanel(int selectedDay) {
     std::vector<std::string> content;
-    content.push_back(u8"        2025년 6월");
+    content.push_back(u8"          2025년 6월");
     content.push_back(u8"");
-    content.push_back(u8" 일  월  화  수  목  금  토");
-    
-    // 각 주별로 날짜 표시 (선택된 날짜는 > < 로 강조)
-    // 6월 1일은 일요일
+    content.push_back(u8"   일  월  화  수  목  금  토");
+
+    // 각 주별 날짜
+    for (int weekStart = 1; weekStart <= 31; weekStart += 7) {
+        std::string week = "  ";
+        for (int day = weekStart; day < weekStart + 7 && day <= 31; ++day) {
+            week += formatDay(day, selectedDay);    // 공백 처리를 위해 해당 cpp파일에 새로운 함수를 만들었습니다
+        }
+        content.push_back(week);
+    }
+
+    /*
+    // 기존에 사용하던 코드
     std::string week1 = u8" ";
     for (int day = 1; day <= 7; ++day) {
         if (day == selectedDay) {
@@ -84,7 +106,7 @@ std::vector<std::string> PanelContentGenerator::getCalendarStringsForPanel(int s
         if (day < 7) week1 += u8" ";
     }
     content.push_back(week1);
-    
+
     std::string week2 = u8" ";
     for (int day = 8; day <= 14; ++day) {
         if (day == selectedDay) {
@@ -95,7 +117,7 @@ std::vector<std::string> PanelContentGenerator::getCalendarStringsForPanel(int s
         if (day < 14) week2 += u8" ";
     }
     content.push_back(week2);
-    
+
     std::string week3 = u8" ";
     for (int day = 15; day <= 21; ++day) {
         if (day == selectedDay) {
@@ -106,7 +128,7 @@ std::vector<std::string> PanelContentGenerator::getCalendarStringsForPanel(int s
         if (day < 21) week3 += u8" ";
     }
     content.push_back(week3);
-    
+
     std::string week4 = u8" ";
     for (int day = 22; day <= 28; ++day) {
         if (day == selectedDay) {
@@ -117,7 +139,7 @@ std::vector<std::string> PanelContentGenerator::getCalendarStringsForPanel(int s
         if (day < 28) week4 += u8" ";
     }
     content.push_back(week4);
-    
+
     std::string week5 = u8" ";
     for (int day = 29; day <= 30; ++day) {
         if (day == selectedDay) {
@@ -128,6 +150,7 @@ std::vector<std::string> PanelContentGenerator::getCalendarStringsForPanel(int s
         if (day < 30) week5 += u8" ";
     }
     content.push_back(week5);
+    */
     
     content.push_back(u8"");
     content.push_back(u8"선택된 날짜: " + std::to_string(selectedDay) + u8"일");
