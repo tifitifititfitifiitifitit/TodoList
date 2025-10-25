@@ -208,7 +208,6 @@ void PokeTodoApp::handleArrowKeys(int key) {
         case 72: // 위쪽 화살표
             selectedTamagotchiIndex = (selectedTamagotchiIndex - 1 + 3) % 3;
             rightPanelDynamicContent = PanelContentGenerator::getTamagotchiMenu(pet, pointService, selectedTamagotchiIndex);
-            //selectedTamagotchiIndex = 3;
             break;
         case 80: // 아래쪽 화살표
             selectedTamagotchiIndex = (selectedTamagotchiIndex + 1) % 3;
@@ -252,7 +251,6 @@ void PokeTodoApp::handleEnterKey() {
         break;
     case UiState::SELECTING_TAMAGOTCHI_ACTION:
         processTamagotchiAction();
-        selectedTamagotchiIndex = 0;
         break;
     case UiState::TAMAGOTCHI_ONE_MORE_ENTER:
         processTamagotchiAction();
@@ -543,6 +541,7 @@ void PokeTodoApp::processTamagotchiAction() {
             // 다마고치 모드 종료 시 상태 저장
             saveTamagotchiToFile();
             rightPanelDynamicContent = { u8"  다마고치 모드를 종료합니다." };
+            selectedTamagotchiIndex = 0;
             currentAppState = UiState::QUIT_TAMIGOTCHI_MODE;
         }
     }
