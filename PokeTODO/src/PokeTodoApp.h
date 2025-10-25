@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <string>
 #include <vector>
+#include <cctype>
 #include "services/UserPlanService.h"
 #include "services/UserPointService.h"
 #include "services/UserTamagotchiService.h"
@@ -19,6 +20,7 @@ private:
     // UI 상태 관련
     UiState currentAppState;
     std::vector<std::string> menuItems;
+    std::vector<std::string> tamagotchiItems;
     std::vector<std::string> rightPanelDynamicContent;
     std::string inputPrompt;
     int selectedItem;
@@ -31,12 +33,13 @@ private:
     int selectedCalendarDay;
     int selectedPlanIndex;
     int selectedTaskIndex;
+    int selectedTamagotchiIndex;
 
     // 초기화 메소드들
     void initializeServices();
     void initializeUI();
     void createSampleData();
-    
+
     // 파일 저장/불러오기 메소드들
     void loadTamagotchiFromFile();
     void saveTamagotchiToFile();
@@ -45,13 +48,14 @@ private:
     void handleArrowKeys(int key);
     void handleEnterKey();
     void handleEscapeKey();
-    
+
     // 메뉴 액션 처리 메소드들
     void processMainMenuSelection();
     void processCalendarView();
     void processPlanSelection();
     void processTaskSelection();
     void processTamagotchiMode();
+    void processTamagotchiAction();
 
     // 작업 추가를 위한 입력 처리 메소드들
     void processTaskTitleInput();
@@ -63,6 +67,6 @@ private:
 public:
     PokeTodoApp();
     ~PokeTodoApp();
-    
+
     void run();
-}; 
+};

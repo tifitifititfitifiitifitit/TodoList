@@ -3,6 +3,10 @@
 #include <vector>
 #include "../services/UserPlanService.h"
 #include "../models/Plan.h"
+#include "../services/UserTamagotchiService.h"
+#include "../models/Tamagotchi.h"
+#include "../services/UserPointService.h"
+
 
 class PanelContentGenerator {
 public:
@@ -23,4 +27,10 @@ public:
     
     // 2025년 5월 캘린더 생성 함수
     static std::vector<std::string> getCalendarStringsForPanel(int selectedDay = 1);
+
+    static std::vector<std::string> getTamagotchiMenu(
+        Tamagotchi::Tamagotchi* myPet,
+        UserPointService& pointService,
+        int selectedTamagotchiItem
+    );
 }; 

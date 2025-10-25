@@ -63,10 +63,10 @@ void UIManager::displayMenu(const std::vector<std::string>& menuItems, int selec
     for (size_t i = 0; i < display_lines; ++i) {
         std::string menu_line_str;
         if (i == 0) {
-            menu_line_str = u8"   < 메뉴 >";
+            menu_line_str = u8"    < 메뉴 >";
         }
-        else if ((i - num_menu_header_lines) < num_menu_items_lines) {
-            std::string prefix = ((i - num_menu_header_lines) == selectedItem) ? u8" > " : u8"   ";
+        if ((i - num_menu_header_lines) < num_menu_items_lines) {
+            std::string prefix = ((i - num_menu_header_lines) == selectedItem) ? u8"  > " : u8"    ";
             menu_line_str = prefix + menuItems[i - num_menu_header_lines];
         }
         else if (i == (num_menu_header_lines + num_menu_items_lines)) {

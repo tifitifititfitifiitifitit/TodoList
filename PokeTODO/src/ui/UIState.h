@@ -22,6 +22,9 @@ enum class UiState {
     SELECTING_PLAN_FOR_COMPLETE_TASK, // 작업 완료를 위해 플랜 선택
     SELECTING_TASK_FOR_COMPLETE, // 작업 완료를 위해 작업 선택
     PROMPT_ENTER_TAMAGOTCHI_MODE,
+    SELECTING_TAMAGOTCHI_ACTION,
+    TAMAGOTCHI_ONE_MORE_ENTER,
+    QUIT_TAMIGOTCHI_MODE
 };
 
 // 임시 작업 데이터 저장을 위한 구조체
