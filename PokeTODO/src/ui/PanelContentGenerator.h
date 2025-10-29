@@ -16,13 +16,13 @@ public:
     // 플랜 목록을 위한 패널 컨텐츠 생성
     static std::vector<std::string> getPlanListStringsForPanel(
         UserPlanService& planService, 
-        const std::string& instruction = u8"엔터 키를 누르면 메뉴로 돌아갑니다.", 
+        const std::string& instruction = u8"  엔터 키를 누르면 메뉴로 돌아갑니다.", 
         int selectedPlanIndex = -1);
     
     // 작업 목록을 위한 패널 컨텐츠 생성
     static std::vector<std::string> getTaskListStringsForPanel(
         Plan* plan, 
-        const std::string& instruction = u8"엔터 키를 누르면 메뉴로 돌아갑니다.", 
+        const std::string& instruction = u8"  엔터 키를 누르면 메뉴로 돌아갑니다.", 
         int selectedTaskIndex = -1);
     
     // 2025년 5월 캘린더 생성 함수

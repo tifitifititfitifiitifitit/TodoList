@@ -553,24 +553,24 @@ void PokeTodoApp::processTamagotchiAction() {
 
 void PokeTodoApp::processTaskTitleInput() {
     std::string title;
-    std::cout << u8"\n제목을 입력하세요: ";
+    std::cout << u8"\n 제목을 입력하세요: ";
     std::getline(std::cin, title);
 
     if (!title.empty()) {
         tempTaskData.title = title;
-        rightPanelDynamicContent = { u8"플랜 [" + tempTaskData.planId + u8"]에 작업 추가 중..." };
-        rightPanelDynamicContent.push_back(u8"제목: " + tempTaskData.title);
-        inputPrompt = u8"우선순위 (1:높음, 2:중간, 3:낮음): ";
+        rightPanelDynamicContent = { u8" 플랜[" + tempTaskData.planId + u8"]에 작업 추가 중..." };
+        rightPanelDynamicContent.push_back(u8" 제목: " + tempTaskData.title);
+        inputPrompt = u8" 우선순위 (1:높음, 2:중간, 3:낮음): ";
         currentAppState = UiState::ADDING_TASK_DETAILS_PRIORITY;
     }
     else {
-        inputPrompt = u8"제목을 다시 입력하세요: ";
+        inputPrompt = u8" 제목을 다시 입력하세요: ";
     }
 }
 
 void PokeTodoApp::processTaskPriorityInput() {
     std::string priorityStr;
-    std::cout << u8"\n우선순위를 입력하세요 (1:높음, 2:중간, 3:낮음): ";
+    std::cout << u8"\n 우선순위를 입력하세요 (1:높음, 2:중간, 3:낮음): ";
     std::getline(std::cin, priorityStr);
 
     if (priorityStr == "1") {
@@ -596,15 +596,15 @@ void PokeTodoApp::processTaskPriorityInput() {
         tempTaskData.priority, tempTaskData.deadline, tempTaskData.tags);
     planService.addTaskToPlan(tempTaskData.planId, request);
 
-    rightPanelDynamicContent = { u8"작업이 성공적으로 추가되었습니다!" };
-    rightPanelDynamicContent.push_back(u8"제목: " + tempTaskData.title);
+    rightPanelDynamicContent = { u8"  작업이 성공적으로 추가되었습니다!" };
+    rightPanelDynamicContent.push_back(u8"  제목: " + tempTaskData.title);
 
     std::string priorityText = priorityStr.empty() ? u8"중간" :
         (priorityStr == "1" ? u8"높음" :
             priorityStr == "2" ? u8"중간" : u8"낮음");
-    rightPanelDynamicContent.push_back(u8"우선순위: " + priorityText);
-    rightPanelDynamicContent.push_back(u8"플랜: " + tempTaskData.planId);
-    rightPanelDynamicContent.push_back(u8"엔터를 누르면 메뉴로 돌아갑니다.");
+    rightPanelDynamicContent.push_back(u8"  우선순위: " + priorityText);
+    rightPanelDynamicContent.push_back(u8"  플랜: " + tempTaskData.planId);
+    rightPanelDynamicContent.push_back(u8"  엔터를 누르면 메뉴로 돌아갑니다.");
 
     // 상태 초기화
     tempTaskData = {};
